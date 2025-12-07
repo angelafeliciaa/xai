@@ -1107,9 +1107,32 @@ function MatchContent() {
                     )}
 
                     {expandedCard === match.profile.username && match.profile.sample_tweets && (
-                      <div className="mt-3 space-y-2">
-                        {match.profile.sample_tweets.slice(0, 2).map((tweet, i) => (
-                          <p key={i} className="text-xs text-white/30 bg-white/[0.02] px-3 py-2 rounded-lg line-clamp-2">{tweet}</p>
+                      <div className="mt-4 space-y-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <svg className="w-3.5 h-3.5 text-white/30" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                          </svg>
+                          <span className="text-[10px] uppercase tracking-wider text-white/30">Recent Posts</span>
+                        </div>
+                        {match.profile.sample_tweets.slice(0, 3).map((tweet, i) => (
+                          <div key={i} className="group/tweet relative bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 transition-all">
+                            <div className="flex gap-3">
+                              {match.profile.profile_image_url && (
+                                <img
+                                  src={match.profile.profile_image_url}
+                                  alt=""
+                                  className="w-8 h-8 rounded-full shrink-0"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 mb-1">
+                                  <span className="text-xs font-medium text-white/70">{match.profile.name}</span>
+                                  <span className="text-xs text-white/30">@{match.profile.username}</span>
+                                </div>
+                                <p className="text-sm text-white/50 leading-relaxed">{tweet}</p>
+                              </div>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     )}
