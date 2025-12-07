@@ -122,6 +122,11 @@ function MatchContent() {
 
   const handleMatch = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Update URL to persist username and type
+    const params = new URLSearchParams();
+    params.set('username', username.trim());
+    params.set('type', searcherType);
+    router.push(`/match?${params.toString()}`, { scroll: false });
     await performMatch(username, searcherType, minFollowers);
   };
 
