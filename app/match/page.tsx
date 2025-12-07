@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Sidebar from '../components/Sidebar';
+
+export const dynamic = 'force-dynamic';
 
 interface ProfileMetadata {
   type: string;
@@ -31,7 +33,7 @@ interface TweetResult {
   };
 }
 
-export default function MatchPage() {
+function MatchContent() {
   const searchParams = useSearchParams();
   const [username, setUsername] = useState('');
   const [searcherType, setSearcherType] = useState<'brand' | 'creator'>('brand');
@@ -483,5 +485,23 @@ export default function MatchPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function MatchPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen bg-gray-50">
+        <Sidebar />
+        <main className="ml-56 flex-1 p-8 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin h-8 w-8 border-4 border-gray-300 border-t-black rounded-full mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </main>
+      </div>
+    }>
+      <MatchContent />
+    </Suspense>
   );
 }
