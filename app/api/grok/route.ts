@@ -34,42 +34,62 @@ export async function POST(request: NextRequest) {
     let userPrompt = '';
 
     if (action === 'explain_match') {
-      systemPrompt = `You are an expert brand-creator matchmaking analyst. Your job is to explain why a creator is a good match for a brand based on their content style, audience, and voice alignment. Be concise, insightful, and specific. Focus on actionable insights.`;
+      systemPrompt = `You are an expert brand-creator matchmaking analyst. Your job is to explain why a creator is a good match for a brand based on their actual content, voice, and audience alignment. Analyze the sample tweets to identify specific themes, tone, and topics that make them compatible. Be concise, insightful, and specific.`;
 
-      userPrompt = `Explain why ${creator.name} (@${creator.username}) is a ${Math.round(matchScore * 100)}% match for ${brand.name} (@${brand.username}).
+      // Format tweets with numbering for clarity
+      const formatTweets = (tweets: string[] | undefined, limit = 10) => {
+        if (!tweets?.length) return 'No tweets available';
+        return tweets.slice(0, limit).map((t: string, i: number) => `  ${i + 1}. "${t}"`).join('\n');
+      };
 
-Brand Info:
-- Name: ${brand.name}
-- Bio: ${brand.description || 'No bio available'}
-- Followers: ${formatFollowers(brand.follower_count)}
+      userPrompt = `Analyze why ${creator.name} (@${creator.username}) is a ${Math.round(matchScore * 100)}% match for ${brand.name} (@${brand.username}).
 
-Creator Info:
-- Name: ${creator.name}
-- Bio: ${creator.description || 'No bio available'}
-- Followers: ${formatFollowers(creator.follower_count)}
-${creator.sample_tweets?.length ? `- Sample tweets:\n${creator.sample_tweets.slice(0, 3).map((t: string) => `  "${t}"`).join('\n')}` : ''}
+## BRAND: ${brand.name} (@${brand.username})
+Bio: ${brand.description || 'No bio available'}
+Followers: ${formatFollowers(brand.follower_count)}
+Recent tweets:
+${formatTweets(brand.sample_tweets)}
 
-Provide a 2-3 sentence explanation of why this creator's content style and audience align with the brand. Be specific about the content themes and voice that make them compatible.`;
+## CREATOR: ${creator.name} (@${creator.username})
+Bio: ${creator.description || 'No bio available'}
+Followers: ${formatFollowers(creator.follower_count)}
+Recent tweets:
+${formatTweets(creator.sample_tweets)}
+
+Based on analyzing both their actual tweet content, provide a 2-3 sentence explanation of:
+1. What specific content themes/topics they share
+2. How their voice and tone align
+3. Why this creator would authentically represent this brand`;
     } else if (action === 'campaign_brief') {
-      systemPrompt = `You are a creative strategist specializing in influencer marketing campaigns. Generate concise, actionable campaign briefs that leverage the unique strengths of both brand and creator.`;
+      systemPrompt = `You are a creative strategist specializing in influencer marketing campaigns. Analyze the brand and creator's actual content to generate authentic, tailored campaign briefs that leverage their unique voices and shared themes.`;
+
+      // Format tweets with numbering
+      const formatTweets = (tweets: string[] | undefined, limit = 10) => {
+        if (!tweets?.length) return 'No tweets available';
+        return tweets.slice(0, limit).map((t: string, i: number) => `  ${i + 1}. "${t}"`).join('\n');
+      };
 
       userPrompt = `Generate a campaign brief for a partnership between ${brand.name} and ${creator.name}.
 
-Brand: ${brand.name} (@${brand.username})
-- Bio: ${brand.description || 'No bio'}
-- Followers: ${formatFollowers(brand.follower_count)}
+## BRAND: ${brand.name} (@${brand.username})
+Bio: ${brand.description || 'No bio'}
+Followers: ${formatFollowers(brand.follower_count)}
+Recent brand tweets:
+${formatTweets(brand.sample_tweets)}
 
-Creator: ${creator.name} (@${creator.username})
-- Bio: ${creator.description || 'No bio'}
-- Followers: ${formatFollowers(creator.follower_count)}
-${creator.sample_tweets?.length ? `- Recent content themes:\n${creator.sample_tweets.slice(0, 3).map((t: string) => `  "${t}"`).join('\n')}` : ''}
+## CREATOR: ${creator.name} (@${creator.username})
+Bio: ${creator.description || 'No bio'}
+Followers: ${formatFollowers(creator.follower_count)}
+Recent creator tweets:
+${formatTweets(creator.sample_tweets)}
 
-${matchingTweets?.length ? `Most relevant creator tweets for this brand:\n${matchingTweets.slice(0, 3).map((t: { text: string }) => `- "${t.text}"`).join('\n')}` : ''}
+${matchingTweets?.length ? `## MOST RELEVANT TWEETS (highest semantic match to brand):\n${matchingTweets.slice(0, 5).map((t: { text: string }, i: number) => `${i + 1}. "${t.text}"`).join('\n')}` : ''}
 
-Generate a brief campaign proposal with:
-1. **Campaign Concept** (1-2 sentences)
-2. **Content Ideas** (3 bullet points)
-3. **Key Messages** (2-3 talking points)
+Based on analyzing their actual content, generate a campaign proposal that feels authentic to both voices:
+
+1. **Campaign Concept** (1-2 sentences - reference specific themes from their tweets)
+2. **Content Ideas** (3 bullet points - inspired by creator's actual content style)
+3. **Key Messages** (2-3 talking points - align brand values with creator voice)
 4. **Expected Outcome** (1 sentence)
 
 Keep it concise and actionable.`;
@@ -92,7 +112,7 @@ Keep it concise and actionable.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        max_tokens: 500,
+        max_tokens: 800,
         temperature: 0.7,
       }),
     });

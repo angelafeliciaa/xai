@@ -190,13 +190,8 @@ export async function POST(request: NextRequest) {
     // Compute profile embedding
     const profileEmbedding = computeProfileEmbedding(bioEmbedding, tweetEmbeddings);
 
-    // Get top 3 tweets by engagement for display
-    const sortedTweets = [...tweets].sort((a, b) => {
-      const engA = (a.public_metrics?.like_count || 0) + (a.public_metrics?.retweet_count || 0);
-      const engB = (b.public_metrics?.like_count || 0) + (b.public_metrics?.retweet_count || 0);
-      return engB - engA;
-    });
-    const sampleTweets = sortedTweets.slice(0, 3).map((t) => t.text.slice(0, 500));
+    // Store all tweets used for embedding (up to 10) for Grok context
+    const sampleTweets = tweets.map((t) => t.text.slice(0, 280));
 
     // Build metadata (no null values)
     const metadata: Record<string, unknown> = {
