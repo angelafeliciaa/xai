@@ -286,7 +286,7 @@ function GalleryScene({
 
       <ambientLight intensity={0.7} color="#f6e5cc" />
       <directionalLight position={[8, 12, 6]} intensity={0.9} color="#ffffff" />
-      <hemisphereLight skyColor="#fff3d8" groundColor="#e8ddcf" intensity={0.6} />
+      <hemisphereLight args={["#fff3d8", "#e8ddcf", 0.6]} />
 
       {/* Cards */}
       {cards.map((card) => (

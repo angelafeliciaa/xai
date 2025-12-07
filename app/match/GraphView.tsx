@@ -293,7 +293,7 @@ export default function GraphView({ queryProfile, matches, onCreatorClick }: Gra
       });
 
     node
-      .filter((d) => d.imageUrl)
+      .filter((d) => !!d.imageUrl)
       .append('image')
       .attr('xlink:href', (d) => d.imageUrl!.replace('_normal', '_bigger'))
       .attr('x', (d) => {
@@ -388,7 +388,7 @@ export default function GraphView({ queryProfile, matches, onCreatorClick }: Gra
 
     // Add verified badges
     node
-      .filter((d) => d.verified)
+      .filter((d) => !!d.verified)
       .append('circle')
       .attr('cx', (d) => (d.type === 'query' ? 28 : 22))
       .attr('cy', (d) => (d.type === 'query' ? 28 : 22))
@@ -396,7 +396,7 @@ export default function GraphView({ queryProfile, matches, onCreatorClick }: Gra
       .attr('fill', 'rgb(29, 155, 240)');
 
     node
-      .filter((d) => d.verified)
+      .filter((d) => !!d.verified)
       .append('text')
       .text('✓')
       .attr('x', (d) => (d.type === 'query' ? 28 : 22))
