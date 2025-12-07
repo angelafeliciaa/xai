@@ -441,12 +441,12 @@ function MatchContent() {
 export default function MatchPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="flex min-h-screen bg-[#050505]">
         <Sidebar />
-        <main className="ml-56 flex-1 p-8 flex items-center justify-center">
+        <main className="ml-64 flex-1 p-8 lg:p-12 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin h-8 w-8 border-4 border-gray-300 border-t-black rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
+            <div className="animate-spin h-8 w-8 border-2 border-white/10 border-t-white/60 rounded-full mx-auto mb-4"></div>
+            <p className="text-white/40">Loading...</p>
           </div>
         </main>
       </div>
