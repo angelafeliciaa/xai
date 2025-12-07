@@ -39,10 +39,16 @@ export default function MatchPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
+  // Filter state
+  const [minFollowers, setMinFollowers] = useState<string>('');
+
   // Drill-down state
   const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
   const [creatorTweets, setCreatorTweets] = useState<TweetResult[]>([]);
   const [loadingTweets, setLoadingTweets] = useState(false);
+
+  // Expanded card state
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
   const ingestProfile = async (user: string, type: string): Promise<boolean> => {
     setStatusMessage(`Ingesting @${user} from X (this may take a few seconds)...`);
@@ -84,6 +90,10 @@ export default function MatchPage() {
         type: searcherType,
         top_k: '10',
       });
+
+      if (minFollowers) {
+        params.set('min_followers', minFollowers);
+      }
 
       let response = await fetch(`/api/match?${params}`);
       let data = await response.json();
@@ -176,8 +186,8 @@ export default function MatchPage() {
 
           {/* Search Form */}
           <form onSubmit={handleMatch} className="bg-white rounded-xl p-6 border border-gray-200 mb-6">
-            <div className="flex gap-4 items-end">
-              <div className="flex-1">
+            <div className="flex gap-4 items-end flex-wrap">
+              <div className="flex-1 min-w-[200px]">
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
                   Username (without @)
                 </label>
@@ -190,7 +200,7 @@ export default function MatchPage() {
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 />
               </div>
-              <div className="w-48">
+              <div className="w-36">
                 <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
                   I am a...
                 </label>
@@ -202,6 +212,24 @@ export default function MatchPage() {
                 >
                   <option value="brand">Brand</option>
                   <option value="creator">Creator</option>
+                </select>
+              </div>
+              <div className="w-40">
+                <label htmlFor="minFollowers" className="block text-sm font-medium text-gray-700 mb-2">
+                  Min Followers
+                </label>
+                <select
+                  id="minFollowers"
+                  value={minFollowers}
+                  onChange={(e) => setMinFollowers(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                >
+                  <option value="">Any</option>
+                  <option value="10000">10K+</option>
+                  <option value="50000">50K+</option>
+                  <option value="100000">100K+</option>
+                  <option value="500000">500K+</option>
+                  <option value="1000000">1M+</option>
                 </select>
               </div>
               <button
@@ -255,12 +283,25 @@ export default function MatchPage() {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-lg font-bold text-gray-400">#{index + 1}</span>
+                      <span className="text-lg font-bold text-gray-400 w-6">#{index + 1}</span>
+                      {match.profile.profile_image_url ? (
+                        <img
+                          src={match.profile.profile_image_url.replace('_normal', '_bigger')}
+                          alt={match.profile.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-500 text-lg">{match.profile.name.charAt(0)}</span>
+                        </div>
+                      )}
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="font-semibold text-gray-900">{match.profile.name}</h3>
                           {match.profile.verified && (
-                            <span className="text-blue-500">&#10003;</span>
+                            <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z" />
+                            </svg>
                           )}
                         </div>
                         <a
@@ -275,13 +316,45 @@ export default function MatchPage() {
                       </div>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${getScoreColor(match.score || 0)}`}>
-                      {(match.score || 0).toFixed(3)}
+                      {((match.score || 0) * 100).toFixed(0)}%
                     </span>
                   </div>
 
-                  <p className="text-sm text-gray-600 mb-3">
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                     {match.profile.description || 'No bio'}
                   </p>
+
+                  {/* Sample Tweet Preview */}
+                  {match.profile.sample_tweets && match.profile.sample_tweets.length > 0 && (
+                    <div className="mb-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedCard(expandedCard === match.profile.username ? null : match.profile.username);
+                        }}
+                        className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                      >
+                        <span>{expandedCard === match.profile.username ? 'Hide' : 'Show'} sample tweets</span>
+                        <svg
+                          className={`w-3 h-3 transition-transform ${expandedCard === match.profile.username ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      {expandedCard === match.profile.username && (
+                        <div className="mt-2 space-y-2">
+                          {match.profile.sample_tweets.slice(0, 2).map((tweet, i) => (
+                            <p key={i} className="text-xs text-gray-500 bg-gray-50 p-2 rounded line-clamp-2">
+                              {tweet}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>{formatFollowers(match.profile.follower_count)} followers</span>
