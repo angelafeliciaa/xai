@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
 import Sidebar from '../components/Sidebar';
 
 export const dynamic = 'force-dynamic';
@@ -448,9 +449,11 @@ function MatchContent() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                           </div>
-                          <div>
-                            <div className="text-[10px] uppercase tracking-wider text-purple-400/60 mb-1">Grok Analysis</div>
-                            <p className="text-sm text-white/60 leading-relaxed">{explanations[match.profile.username]}</p>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[10px] uppercase tracking-wider text-purple-400/60 mb-2">Grok Analysis</div>
+                            <div className="text-sm text-white/60 leading-relaxed prose prose-sm prose-invert max-w-none prose-p:my-2 prose-strong:text-white/80 prose-ol:my-2 prose-li:my-0.5">
+                              <ReactMarkdown>{explanations[match.profile.username]}</ReactMarkdown>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -577,8 +580,8 @@ function MatchContent() {
                   <p className="text-white/40">Generating campaign brief with Grok...</p>
                 </div>
               ) : campaignBrief ? (
-                <div className="prose prose-invert prose-sm max-w-none">
-                  <div className="text-white/70 leading-relaxed whitespace-pre-wrap">{campaignBrief}</div>
+                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-headings:font-medium prose-h1:text-xl prose-h2:text-lg prose-h2:mt-6 prose-h2:mb-3 prose-p:text-white/70 prose-p:my-2 prose-strong:text-white/90 prose-ul:my-2 prose-ol:my-2 prose-li:text-white/70 prose-li:my-1">
+                  <ReactMarkdown>{campaignBrief}</ReactMarkdown>
                 </div>
               ) : null}
             </div>
