@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
     const searcherType = searchParams.get('type') || 'brand'; // brand or creator
     const topK = parseInt(searchParams.get('top_k') || '10');
     const minFollowers = searchParams.get('min_followers');
+    const maxFollowers = searchParams.get('max_followers');
 
     if (!username) {
       return NextResponse.json({ error: 'Username is required' }, { status: 400 });
@@ -71,8 +72,17 @@ export async function GET(request: NextRequest) {
 
     // Build filter
     const filter: Record<string, unknown> = { type: targetType };
-    if (minFollowers) {
+    
+    // Handle follower count filtering with both min and max
+    if (minFollowers && maxFollowers) {
+      filter.follower_count = {
+        $gte: parseInt(minFollowers),
+        $lte: parseInt(maxFollowers)
+      };
+    } else if (minFollowers) {
       filter.follower_count = { $gte: parseInt(minFollowers) };
+    } else if (maxFollowers) {
+      filter.follower_count = { $lte: parseInt(maxFollowers) };
     }
 
     // Search for matches

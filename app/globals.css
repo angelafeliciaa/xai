@@ -35,3 +35,111 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* Dual Range Slider Styles */
+.dual-range-slider {
+  position: absolute;
+  width: 100%;
+  height: 1.5px;
+  top: 0;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+.dual-range-slider::-webkit-slider-thumb {
+  appearance: none;
+  pointer-events: all;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.15s ease;
+}
+
+.dual-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.dual-range-slider::-webkit-slider-thumb:active {
+  transform: scale(1.05);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+}
+
+.dual-range-slider::-moz-range-thumb {
+  pointer-events: all;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.15s ease;
+}
+
+.dual-range-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.dual-range-slider::-moz-range-thumb:active {
+  transform: scale(1.05);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+}
+
+.dual-range-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 1.5px;
+  background: transparent;
+}
+
+.dual-range-slider::-moz-range-track {
+  width: 100%;
+  height: 1.5px;
+  background: transparent;
+}
+
+/* Animations */
+@keyframes slide-in-from-top-2 {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.slide-in-from-top-2 {
+  animation-name: slide-in-from-top-2;
+}
+
+.duration-200 {
+  animation-duration: 200ms;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
