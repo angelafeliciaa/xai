@@ -12,6 +12,7 @@ export default function Sidebar() {
     { name: 'Brands', href: '/brands', icon: '🏢' },
     { name: 'Products', href: '/products', icon: '📦' },
     { name: 'Asset Library', href: '/assets', icon: '🖼️' },
+    { name: 'Vector Search', href: '/search', icon: '🔍' },
   ];
 
   const creatorItems = [
