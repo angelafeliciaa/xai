@@ -107,7 +107,7 @@ export default function CreatorsPage() {
               {loading ? 'Loading...' : 'Apply'}
             </button>
             {!loading && !error && (
-              <span className="text-sm text-white/30 ml-2">{creators.length} creators</span>
+              <span className="text-sm text-white/30 ml-2">{creators.length}+ creators</span>
             )}
           </div>
 
