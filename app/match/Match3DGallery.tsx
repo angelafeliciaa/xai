@@ -45,7 +45,7 @@ const WORLD_BOUNDS = {
   maxZ: 20,
 };
 
-const INITIAL_CAMERA_POSITION = new THREE.Vector3(0, 2.5, 5);
+const INITIAL_CAMERA_POSITION = new THREE.Vector3(0, 2.5, 8);
 
 function FirstPersonControls({
   cards,
@@ -89,7 +89,7 @@ function FirstPersonControls({
       const lookSpeed = 0.003;
       yaw.current -= dx * lookSpeed;
       pitch.current -= dy * lookSpeed;
-      const maxPitch = Math.PI / 2 - 0.2;
+      const maxPitch = Math.PI / 2 - 0.02;
       pitch.current = THREE.MathUtils.clamp(pitch.current, -maxPitch, maxPitch);
     };
 
@@ -127,13 +127,13 @@ function FirstPersonControls({
     const speed = 7;
     const dir = new THREE.Vector3();
 
-    // get camera forward vector on XZ plane
+    // get camera forward vector (full 3D, including vertical)
     camera.getWorldDirection(dir);
-    const forwardVec = dir.clone().setY(0).normalize();
+    const forwardVec = dir.clone().normalize();
 
     const move = new THREE.Vector3();
 
-    // Scroll-based forward/back
+    // Scroll-based forward/back along view direction
     if (Math.abs(scrollRef.current) > 0.0001) {
       move.add(forwardVec.clone().multiplyScalar(scrollRef.current));
       scrollRef.current *= 0.75;
@@ -153,8 +153,8 @@ function FirstPersonControls({
     nextPosition.y = THREE.MathUtils.clamp(nextPosition.y, WORLD_BOUNDS.minY, WORLD_BOUNDS.maxY);
     nextPosition.z = THREE.MathUtils.clamp(nextPosition.z, WORLD_BOUNDS.minZ, WORLD_BOUNDS.maxZ);
 
-    // collision with cards
-    const minDistance = 1.8;
+    // collision with cards (very soft, just to avoid exact overlap)
+    const minDistance = 0.3;
     let blocked = false;
     for (const card of cards) {
       const center = new THREE.Vector3(...card.position);
@@ -240,15 +240,24 @@ function CardMesh({
                 <span>{card.name.charAt(0)}</span>
               )}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-xs font-medium text-black/80 truncate">{card.name}</p>
               <p className="text-[10px] text-black/40 truncate">@{card.username}</p>
             </div>
-            <div className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-black/5 text-black/50">
-              {(card.score * 100).toFixed(0)}%
+            <div className="ml-auto text-right">
+              <div className="text-[10px] px-1.5 py-0.5 rounded-full bg-black/5 text-black/50 mb-0.5">
+                {(card.score * 100).toFixed(0)}%
+              </div>
+              <div className="text-[9px] text-black/40">
+                {card.followerCount >= 1000000
+                  ? `${(card.followerCount / 1000000).toFixed(1)}M`
+                  : card.followerCount >= 1000
+                  ? `${(card.followerCount / 1000).toFixed(1)}K`
+                  : card.followerCount}
+              </div>
             </div>
           </div>
-          <p className="text-[10px] text-black/55 line-clamp-3 leading-snug">
+          <p className="text-[10px] text-black/55 line-clamp-2 leading-snug">
             {card.description || "No bio available."}
           </p>
         </div>
@@ -303,13 +312,18 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
   const cards: CardInstance[] = useMemo(() => {
     if (matches.length === 0) return [];
 
-    const followerVals = matches.map((m) =>
+    // Sort so right side of the arc tends to be larger accounts
+    const sorted = [...matches].sort(
+      (a, b) => (a.profile.follower_count ?? 0) - (b.profile.follower_count ?? 0)
+    );
+
+    const followerVals = sorted.map((m) =>
       Math.log10((m.profile.follower_count ?? 0) + 1)
     );
-    const engagementVals = matches.map(
+    const engagementVals = sorted.map(
       (m) => m.profile.sample_tweets?.length ?? 0
     );
-    const scoreVals = matches.map((m) => m.score);
+    const scoreVals = sorted.map((m) => m.score);
 
     const min = (arr: number[]) => Math.min(...arr);
     const max = (arr: number[]) => Math.max(...arr);
@@ -326,12 +340,14 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
       return (value - minVal) / (maxVal - minVal);
     };
 
-    const xRange = 5; // X = following
+    const xRange = 4; // X bias from followers
     const yRange = 3; // Y = engagement
-    const zNear = -3; // closer to camera = higher alignment
-    const zFar = -8; // further = lower alignment
+    const zBase = -5; // main ring depth
 
-    return matches.map((m, index) => {
+    const n = sorted.length;
+    const arc = Math.PI * 1.1; // front-facing arc
+
+    return sorted.map((m, index) => {
       const followerLog = Math.log10((m.profile.follower_count ?? 0) + 1);
       const engagement = m.profile.sample_tweets?.length ?? 0;
       const score = m.score ?? 0;
@@ -340,13 +356,26 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
       const ne = norm(engagement, minEng, maxEng);
       const ns = norm(score, minScore, maxScore);
 
-      const x = (nf - 0.5) * 2 * xRange;
-      const y = (ne - 0.5) * 2 * yRange;
-      const z = zNear + (1 - ns) * (zFar - zNear);
+      // Place on a tighter arc ring
+      const t = n <= 1 ? 0.5 : index / (n - 1);
+      const angle = (t - 0.5) * arc;
+      const ringRadius = 4.5;
+      const ringX = Math.sin(angle) * ringRadius;
+      const ringZ = -Math.cos(angle) * ringRadius + zBase;
+
+      // Followers still bias left/right along the arc
+      const xOffset = (nf - 0.5) * xRange * 0.7;
+      // Engagement = vertical (tighter range)
+      const y = (ne - 0.5) * 2 * yRange * 0.8;
+      // Brand fit nudges closer / further from camera but keeps a band
+      const zOffset = (1 - ns) * 1.0;
+
+      const x = ringX + xOffset;
+      const z = ringZ + zOffset;
 
       // small jitter to avoid perfect overlap
-      const jitterX = Math.sin(index * 12.9898) * 0.4;
-      const jitterY = Math.cos(index * 78.233) * 0.3;
+      const jitterX = Math.sin(index * 12.9898) * 0.25;
+      const jitterY = Math.cos(index * 78.233) * 0.2;
 
       return {
         id: m.profile.username,
@@ -358,7 +387,7 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
         score: m.score,
         engagement,
         position: [x + jitterX, y + jitterY, z] as [number, number, number],
-        radius: 1,
+        radius: 0.7,
       };
     });
   }, [matches]);
