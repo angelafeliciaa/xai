@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Username is required' }, { status: 400 });
     }
 
-    const indexName = process.env.PINECONE_INDEX || 'ugc-creators-test';
+    const indexName = process.env.PINECONE_INDEX || 'ugc-creators';
     const index = pinecone.index(indexName);
 
     // Try to find the profile with case variations
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const indexName = process.env.PINECONE_INDEX || 'ugc-creators-test';
+    const indexName = process.env.PINECONE_INDEX || 'ugc-creators';
     const index = pinecone.index(indexName);
 
     // Get brand profile embedding with case variations
