@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import Sidebar from '../components/Sidebar';
+import GrokLoader from '../components/GrokLoader';
 
 export const dynamic = 'force-dynamic';
 
@@ -447,14 +448,13 @@ function MatchContent() {
               <button
                 type="submit"
                 disabled={loading || !username.trim()}
-                className="px-6 py-3 bg-white text-black font-medium rounded-xl hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-white text-black font-medium rounded-xl hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2 min-w-[120px] justify-center"
               >
                 {loading ? (
                   <>
-                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                    </svg>
+                    <div className="relative w-4 h-4">
+                      <div className="absolute inset-0 rounded-full border-2 border-black/20 border-t-black animate-spin" />
+                    </div>
                     <span>Matching</span>
                   </>
                 ) : (
@@ -591,8 +591,75 @@ function MatchContent() {
             )}
           </form>
 
-          {/* Status */}
-          {statusMessage && !error && (
+          {/* Loading State with Skeleton */}
+          {loading && (
+            <div className="mb-8 animate-in fade-in duration-300">
+              {/* Loading Header */}
+              <div className="flex items-center gap-4 mb-8 pb-8 border-b border-white/[0.06]">
+                <div className="w-12 h-12 rounded-full bg-white/[0.05] animate-pulse" />
+                <div className="flex-1">
+                  <div className="h-5 w-32 bg-white/[0.05] rounded animate-pulse mb-2" />
+                  <div className="h-4 w-48 bg-white/[0.03] rounded animate-pulse" />
+                </div>
+              </div>
+
+              {/* Grok Loading Animation */}
+              <div className="mb-8">
+                <GrokLoader />
+              </div>
+
+              {/* Skeleton Cards */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-4 animate-pulse"
+                    style={{ animationDelay: `${i * 100}ms` }}
+                  >
+                    <div className="h-3 w-16 bg-white/[0.05] rounded mb-3" />
+                    <div className="h-6 w-12 bg-white/[0.08] rounded mb-3" />
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-white/[0.05]" />
+                      <div className="flex-1">
+                        <div className="h-3 w-20 bg-white/[0.05] rounded mb-1" />
+                        <div className="h-2 w-16 bg-white/[0.03] rounded" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Skeleton Result Rows */}
+              <div className="space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-5 animate-pulse"
+                    style={{ animationDelay: `${i * 150}ms` }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-8 h-8 rounded bg-white/[0.03]" />
+                      <div className="w-11 h-11 rounded-full bg-white/[0.05]" />
+                      <div className="flex-1">
+                        <div className="h-4 w-32 bg-white/[0.05] rounded mb-2" />
+                        <div className="h-3 w-48 bg-white/[0.03] rounded" />
+                      </div>
+                      <div className="text-right">
+                        <div className="h-4 w-12 bg-white/[0.05] rounded mb-1" />
+                        <div className="h-3 w-16 bg-white/[0.03] rounded" />
+                      </div>
+                      <div className="h-10 w-16 rounded-xl bg-white/[0.05]" />
+                      <div className="h-9 w-20 rounded-lg bg-white/[0.03]" />
+                      <div className="h-9 w-16 rounded-lg bg-white/[0.03]" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Status Message (for ingestion) */}
+          {statusMessage && !error && !loading && (
             <div className="flex items-center gap-3 mb-6 text-white/50">
               <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin"></div>
               {statusMessage}
@@ -620,7 +687,14 @@ function MatchContent() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-white">{queryProfile.name}</span>
-                    <span className="text-white/30">@{queryProfile.username}</span>
+                    <a
+                      href={`https://x.com/${queryProfile.username}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white/30 hover:text-white/50 transition-colors"
+                    >
+                      @{queryProfile.username}
+                    </a>
                   </div>
                   <div className="text-sm text-white/40">
                     {formatFollowers(queryProfile.follower_count)} followers · Finding {searcherType === 'brand' ? 'creators' : 'brands'}
@@ -708,7 +782,16 @@ function MatchContent() {
                         <div className="flex-1 min-w-0">
                           <div className="text-sm text-white font-medium truncate">{insight.creator.profile.name}</div>
                           <div className="text-xs text-white/30 truncate">
-                            @{insight.creator.profile.username} · {formatFollowers(insight.creator.profile.follower_count)} followers
+                            <a
+                              href={`https://x.com/${insight.creator.profile.username}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="hover:text-white/50 transition-colors"
+                            >
+                              @{insight.creator.profile.username}
+                            </a>
+                            {' · '}{formatFollowers(insight.creator.profile.follower_count)} followers
                           </div>
                         </div>
                       </div>
@@ -808,13 +891,13 @@ function MatchContent() {
                         className="px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 text-cyan-400 text-xs font-medium hover:from-cyan-500/30 hover:to-cyan-500/10 transition-all disabled:opacity-50 flex items-center gap-1.5 h-[38px]"
                       >
                         {loadingPrediction === match.profile.username ? (
-                          <div className="w-3 h-3 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin"></div>
+                          <GrokLoader size="small" />
                         ) : (
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                           </svg>
                         )}
-                        Predict
+                        {loadingPrediction === match.profile.username ? 'Thinking...' : 'Predict'}
                       </button>
 
                       {/* Why button */}
@@ -824,13 +907,13 @@ function MatchContent() {
                         className="px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-purple-500/5 border border-purple-500/20 text-purple-400 text-xs font-medium hover:from-purple-500/30 hover:to-purple-500/10 transition-all disabled:opacity-50 flex items-center gap-1.5 h-[38px]"
                       >
                         {loadingExplanation === match.profile.username ? (
-                          <div className="w-3 h-3 border-2 border-purple-400/30 border-t-purple-400 rounded-full animate-spin"></div>
+                          <GrokLoader size="small" />
                         ) : (
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                           </svg>
                         )}
-                        Why?
+                        {loadingExplanation === match.profile.username ? 'Thinking...' : 'Why?'}
                       </button>
 
                       {/* Arrow */}
@@ -1013,10 +1096,7 @@ function MatchContent() {
             </div>
             <div className="p-6 overflow-y-auto max-h-[calc(80vh-88px)]">
               {loadingBrief ? (
-                <div className="flex flex-col items-center justify-center py-12">
-                  <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-                  <p className="text-white/40">Generating campaign brief with Grok...</p>
-                </div>
+                <GrokLoader />
               ) : campaignBrief ? (
                 <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-headings:font-medium prose-h1:text-xl prose-h2:text-lg prose-h2:mt-6 prose-h2:mb-3 prose-p:text-white/70 prose-p:my-2 prose-strong:text-white/90 prose-ul:my-2 prose-ol:my-2 prose-li:text-white/70 prose-li:my-1">
                   <ReactMarkdown>{campaignBrief}</ReactMarkdown>

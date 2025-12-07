@@ -143,3 +143,35 @@ body {
     opacity: 1;
   }
 }
+
+/* Grok Loader Animations */
+@keyframes float-particle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translateX(28px) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(36px) scale(1.2);
+  }
+}
+
+@keyframes grok-progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-grok-progress {
+  animation: grok-progress 2s ease-in-out infinite;
+}
+
+.bg-gradient-conic {
+  background: conic-gradient(from 0deg, #a855f7, #06b6d4, #a855f7);
+}
