@@ -10,6 +10,8 @@ const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY!,
 });
 
+const TWEETS_NAMESPACE = 'tweets';
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -30,14 +32,14 @@ export async function GET(request: NextRequest) {
     const queryEmbedding = embeddingResponse.data[0].embedding;
 
     // Query Pinecone
-    const indexName = process.env.PINECONE_INDEX || 'ugc-creators';
+    const indexName = process.env.PINECONE_INDEX!;
     const index = pinecone.index(indexName);
 
     const filter = minFollowers
       ? { author_followers: { $gte: parseInt(minFollowers) } }
       : undefined;
 
-    const results = await index.query({
+    const results = await index.namespace(TWEETS_NAMESPACE).query({
       vector: queryEmbedding,
       topK,
       includeMetadata: true,

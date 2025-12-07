@@ -2,9 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [stats, setStats] = useState({ profiles: 0, tweets: 0 });
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then(res => res.json())
+      .then(data => setStats({ profiles: data.profiles || 0, tweets: data.tweets || 0 }))
+      .catch(() => {});
+  }, []);
 
   const navItems = [
     { name: 'Home', href: '/', icon: (
@@ -81,11 +90,11 @@ export default function Sidebar() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="text-lg font-medium text-white">51</div>
+              <div className="text-lg font-medium text-white">{stats.profiles}</div>
               <div className="text-[10px] text-white/30">Profiles</div>
             </div>
             <div>
-              <div className="text-lg font-medium text-white">484</div>
+              <div className="text-lg font-medium text-white">{stats.tweets}</div>
               <div className="text-[10px] text-white/30">Tweets</div>
             </div>
           </div>

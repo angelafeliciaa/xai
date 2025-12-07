@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'X API not configured' }, { status: 500 });
     }
 
-    const indexName = process.env.PINECONE_INDEX || 'ugc-creators-test';
+    const indexName = process.env.PINECONE_INDEX!;
     const index = pinecone.index(indexName);
 
     // Check if already exists
