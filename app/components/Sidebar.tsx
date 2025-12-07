@@ -47,7 +47,7 @@ export default function Sidebar() {
           <div className="w-8 h-8 rounded-lg overflow-hidden group-hover:scale-105 transition-transform">
             <Image
               src="/images/logo-64.png"
-              alt="CreatorMatch Logo"
+              alt="xCreator Logo"
               width={32}
               height={32}
               className="w-full h-full object-cover"
@@ -55,7 +55,7 @@ export default function Sidebar() {
             />
           </div>
           <div>
-            <h1 className="text-white font-medium text-sm tracking-tight">CreatorMatch</h1>
+            <h1 className="text-white font-medium text-sm tracking-tight">xCreator</h1>
             <p className="text-[10px] text-white/30">by xAI</p>
           </div>
         </Link>

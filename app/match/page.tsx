@@ -964,8 +964,8 @@ function MatchContent() {
                       </div> */}
 
                       {/* Score */}
-                      <div className={`px-4 py-2 rounded-xl bg-gradient-to-r border flex items-center ${getScoreStyle(match.score)}`}>
-                        <span className="text-lg font-medium">{((match.score || 0) * 100).toFixed(0)}%</span>
+                      <div className={`px-3 py-2 rounded-lg bg-gradient-to-r border flex items-center h-[38px] ${getScoreStyle(match.score)}`}>
+                        <span className="text-sm font-medium">{((match.score || 0) * 100).toFixed(0)}%</span>
                       </div>
 
                       {/* Predict button */}

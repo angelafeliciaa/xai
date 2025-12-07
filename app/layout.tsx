@@ -10,8 +10,8 @@ const gtStandard = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "UGC Platform - X",
-  description: "User-Generated Content Platform for Brands",
+  title: "xCreator",
+  description: "AI-powered brand-creator matchmaking platform",
 };
 
 export default function RootLayout({
