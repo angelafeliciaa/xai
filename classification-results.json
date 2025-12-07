@@ -1,0 +1,107 @@
+{
+  "timestamp": "2025-12-07T16:02:53.561Z",
+  "status": "complete",
+  "totalProfiles": 341,
+  "correctlyClassified": 330,
+  "mismatches": [
+    {
+      "username": "yeti",
+      "name": "Dustin Kimmel",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile's display name is a personal name, Dustin Kimmel, and the bio describes an individual's professional role at a company, indicating it is a personal account rather than an official brand or organization account.",
+      "mismatch": true
+    },
+    {
+      "username": "CHOMPS",
+      "name": "Sofía FigueroaΨ",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile uses a personal display name 'Sofía Figueroa' and a bio that reflects individual values, while the sample tweets express personal opinions and experiences, such as complaints about local issues, which align with a creator account rather than a brand.",
+      "mismatch": true
+    },
+    {
+      "username": "stvnzhn",
+      "name": "Steven Zhang",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile uses a personal name, Steven Zhang, and the bio describes individual activities like making apps and videos, while the tweets are personal and conversational, indicating it's an individual creator rather than a brand account.",
+      "mismatch": true
+    },
+    {
+      "username": "datadog",
+      "name": "Data",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile bio describes the account as a chocolate Labrador retriever, and the tweets feature personal, humorous stories about its life and experiences, which align with a creator account rather than a brand.",
+      "mismatch": true
+    },
+    {
+      "username": "Mindpump",
+      "name": "Mind Pump Media",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is named 'Mind Pump Media' and features promotional content, services, and a bio emphasizing media achievements like 1B+ downloads, indicating it is an official company or media outlet account rather than an individual's personal profile.",
+      "mismatch": true
+    },
+    {
+      "username": "naborforce",
+      "name": "Naborforce",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile and bio describe Naborforce as a company providing services for aging and companionship, with tweets focusing on promotions, sponsorships, and expansions, indicating an official organizational account rather than an individual's personal one.",
+      "mismatch": true
+    },
+    {
+      "username": "emm4x3",
+      "name": "Emma",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile uses a personal name 'Emma' and bio that highlights individual experiences as a CS student and hackathon organizer, while tweets focus on personal activities like daily life and travels, indicating an individual creator account rather than a brand.",
+      "mismatch": true
+    },
+    {
+      "username": "ChefSteps",
+      "name": "ChefSteps",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile's bio uses 'we' to describe a group of food professionals and promotes content via a website, indicating an organizational account rather than an individual. The sample tweets focus on educational and promotional content about cooking, which is typical for a brand or company.",
+      "mismatch": true
+    },
+    {
+      "username": "bonappetit",
+      "name": "Bon Appétit",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile belongs to Bon Appétit, a well-known food media outlet, with a bio focused on recipes and culture, and it's verified as a business account, indicating it's an official organization. The sample tweets promote content in a professional, third-person style typical of brand accounts, not individuals.",
+      "mismatch": true
+    },
+    {
+      "username": "oura",
+      "name": "Daouna Jeong",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile belongs to an individual named Daouna Jeong, with a bio that describes her personal background and professional roles in first-person terms, and tweets that share personal recommendations and insights, indicating it's a creator account rather than a brand.",
+      "mismatch": true
+    },
+    {
+      "username": "TheEllenShow",
+      "name": "The Ellen Show",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is for 'The Ellen Show', which is an official account for a TV program and media outlet, fitting the brand category as it promotes the show and its content rather than being a personal account. The bio explicitly states it as the home for the show, confirming it's an organizational entity.",
+      "mismatch": true
+    }
+  ]
+}

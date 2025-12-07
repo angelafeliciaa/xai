@@ -13,7 +13,7 @@ const pinecone = new Pinecone({
 const X_BEARER_TOKEN = process.env.X_BEARER_TOKEN;
 const PROFILES_NAMESPACE = 'profiles';
 const TWEETS_NAMESPACE = 'tweets';
-const MAX_TWEETS = 10; // Optimized for Vercel free tier (10s timeout)
+const MAX_TWEETS = 25; // Increased for better embeddings
 
 interface XUser {
   id: string;
@@ -53,6 +53,13 @@ async function fetchXUser(username: string): Promise<XUser> {
   );
 
   if (!response.ok) {
+    // Log rate limit headers
+    const headers = {
+      'x-rate-limit-limit': response.headers.get('x-rate-limit-limit'),
+      'x-rate-limit-remaining': response.headers.get('x-rate-limit-remaining'),
+      'x-rate-limit-reset': response.headers.get('x-rate-limit-reset'),
+    };
+    console.error(`X API error ${response.status} for @${username}:`, headers);
     throw new Error(`X API error: ${response.status}`);
   }
 
@@ -139,16 +146,29 @@ export async function POST(request: NextRequest) {
     const indexName = process.env.PINECONE_INDEX!;
     const index = pinecone.index(indexName);
 
-    // Check if already exists
-    const vectorId = `${type}_${username}`;
+    // Normalize username to lowercase to prevent duplicates
+    const normalizedUsername = username.toLowerCase();
+    const vectorId = `${type}_${normalizedUsername}`;
+
+    // Check if already exists (also check common case variations)
+    const caseVariations = [
+      `${type}_${username}`,
+      `${type}_${username.toLowerCase()}`,
+      `${type}_${username.toUpperCase()}`,
+      `${type}_${username.charAt(0).toUpperCase() + username.slice(1).toLowerCase()}`,
+    ];
+    const uniqueIds = [...new Set(caseVariations)];
+
     try {
-      const existing = await index.namespace(PROFILES_NAMESPACE).fetch([vectorId]);
-      if (existing.records && existing.records[vectorId]) {
-        return NextResponse.json({
-          message: 'Profile already exists',
-          profile: existing.records[vectorId].metadata,
-          existed: true,
-        });
+      const existing = await index.namespace(PROFILES_NAMESPACE).fetch(uniqueIds);
+      for (const id of uniqueIds) {
+        if (existing.records && existing.records[id]) {
+          return NextResponse.json({
+            message: 'Profile already exists',
+            profile: existing.records[id].metadata,
+            existed: true,
+          });
+        }
       }
     } catch {
       // Profile doesn't exist, continue with ingestion
