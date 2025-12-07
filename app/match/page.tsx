@@ -38,6 +38,7 @@ function MatchContent() {
   const searchParams = useSearchParams();
   const [username, setUsername] = useState('');
   const [searcherType, setSearcherType] = useState<'brand' | 'creator'>('brand');
+  const [placeholder, setPlaceholder] = useState('elon');
   const [initialized, setInitialized] = useState(false);
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [queryProfile, setQueryProfile] = useState<ProfileMetadata | null>(null);
@@ -133,8 +134,13 @@ function MatchContent() {
       setInitialized(true);
       setTimeout(() => performMatch(urlUsername, urlType || 'brand'), 100);
     } else {
-      setUsername('Nike');
-      setInitialized(true);
+      if (urlType === 'brand'){
+        setUsername('elon');
+        setInitialized(true);
+      } else if (urlType == 'creator'){
+        setUsername('Elonmusk');
+        setInitialized(true);  
+      }
     }
   }, [searchParams, initialized, performMatch]);
 
@@ -257,7 +263,7 @@ function MatchContent() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Nike"
+                    placeholder={searcherType === 'brand' ? 'nike' : 'elonmusk'}
                     className="w-full pl-8 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all"
                   />
                 </div>
