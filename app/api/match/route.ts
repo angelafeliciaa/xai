@@ -7,6 +7,140 @@ const pinecone = new Pinecone({
 
 const PROFILES_NAMESPACE = 'profiles';
 const TWEETS_NAMESPACE = 'tweets';
+const XAI_API_KEY = process.env.XAI_API_KEY;
+
+interface ProfileMetadata {
+  username: string;
+  name: string;
+  description: string;
+  type: string;
+  follower_count: number;
+  sample_tweets?: string[];
+}
+
+// Re-rank matches using Grok
+async function rerankWithGrok(
+  queryProfile: ProfileMetadata,
+  candidates: { score: number | undefined; profile: ProfileMetadata }[],
+  topK: number
+): Promise<{ score: number | undefined; profile: ProfileMetadata }[]> {
+  if (!XAI_API_KEY || candidates.length === 0) return candidates.slice(0, topK);
+
+  const isCreatorSearching = queryProfile.type === 'creator';
+  const searcherLabel = isCreatorSearching ? 'creator' : 'brand';
+  const targetLabel = isCreatorSearching ? 'brand' : 'creator';
+
+  // Build candidate summaries
+  const candidateSummaries = candidates.map((c, i) => {
+    const p = c.profile;
+    const tweets = p.sample_tweets?.slice(0, 3).join(' | ') || 'N/A';
+    return `${i + 1}. @${p.username} (${p.name}) - ${p.follower_count.toLocaleString()} followers
+   Bio: ${p.description || 'N/A'}
+   Sample content: ${tweets.slice(0, 200)}`;
+  }).join('\n\n');
+
+  const queryTweets = queryProfile.sample_tweets?.slice(0, 3).join(' | ') || 'N/A';
+
+  const prompt = `You are an expert at matching ${targetLabel}s with ${searcherLabel}s for marketing partnerships.
+
+## ${searcherLabel.toUpperCase()} PROFILE:
+@${queryProfile.username} (${queryProfile.name})
+Bio: ${queryProfile.description || 'N/A'}
+Followers: ${queryProfile.follower_count.toLocaleString()}
+Sample content: ${queryTweets.slice(0, 300)}
+
+## CANDIDATE ${targetLabel.toUpperCase()}S:
+${candidateSummaries}
+
+## TASK:
+Rank these ${candidates.length} ${targetLabel}s from BEST to WORST fit for @${queryProfile.username}.
+Consider:
+- Industry/niche alignment (beauty creator should match beauty brands, tech founder should match tech companies)
+- Audience overlap potential
+- Brand safety and values alignment
+- Content style compatibility
+
+Return the ranking as an array of numbers (1-indexed) from best to worst fit.`;
+
+  try {
+    // Define JSON schema for structured output
+    const responseSchema = {
+      type: 'object',
+      properties: {
+        ranking: {
+          type: 'array',
+          items: { type: 'integer' },
+          description: 'Array of candidate numbers (1-indexed) ranked from best to worst fit',
+        },
+      },
+      required: ['ranking'],
+      additionalProperties: false,
+    };
+
+    const response = await fetch('https://api.x.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${XAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'grok-4-1-fast-reasoning',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 200,
+        temperature: 0.1,
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            name: 'ranking_response',
+            strict: true,
+            schema: responseSchema,
+          },
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Grok rerank failed:', response.status);
+      return candidates.slice(0, topK);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '{}';
+
+    // Parse structured JSON response
+    const parsed = JSON.parse(content);
+    const ranking = (parsed.ranking || [])
+      .map((n: number) => n - 1) // Convert to 0-indexed
+      .filter((n: number) => !isNaN(n) && n >= 0 && n < candidates.length);
+
+    if (ranking.length === 0) {
+      return candidates.slice(0, topK);
+    }
+
+    // Reorder candidates based on Grok's ranking
+    const reranked: typeof candidates = [];
+    const used = new Set<number>();
+
+    for (const idx of ranking) {
+      if (!used.has(idx)) {
+        reranked.push(candidates[idx]);
+        used.add(idx);
+      }
+    }
+
+    // Add any candidates not in ranking at the end
+    for (let i = 0; i < candidates.length; i++) {
+      if (!used.has(i)) {
+        reranked.push(candidates[i]);
+      }
+    }
+
+    return reranked.slice(0, topK);
+  } catch (error) {
+    console.error('Grok rerank error:', error);
+    return candidates.slice(0, topK);
+  }
+}
 
 // Generate case variations for username lookup
 function getUsernameVariations(username: string): string[] {
@@ -28,6 +162,8 @@ export async function GET(request: NextRequest) {
     const searcherType = searchParams.get('type') || 'brand'; // brand or creator
     const topK = parseInt(searchParams.get('top_k') || '10');
     const minFollowers = searchParams.get('min_followers');
+    const maxFollowers = searchParams.get('max_followers');
+    const rerank = searchParams.get('rerank') !== 'false'; // Default to true
 
     if (!username) {
       return NextResponse.json({ error: 'Username is required' }, { status: 400 });
@@ -71,27 +207,51 @@ export async function GET(request: NextRequest) {
 
     // Build filter
     const filter: Record<string, unknown> = { type: targetType };
-    if (minFollowers) {
+    
+    // Handle follower count filtering with both min and max
+    if (minFollowers && maxFollowers) {
+      filter.follower_count = {
+        $gte: parseInt(minFollowers),
+        $lte: parseInt(maxFollowers)
+      };
+    } else if (minFollowers) {
       filter.follower_count = { $gte: parseInt(minFollowers) };
+    } else if (maxFollowers) {
+      filter.follower_count = { $lte: parseInt(maxFollowers) };
     }
+
+    // Fetch more candidates for re-ranking (3x topK, min 15)
+    const fetchCount = rerank ? Math.max(topK * 3, 15) : topK;
 
     // Search for matches
     const results = await index.namespace(PROFILES_NAMESPACE).query({
       vector: profileData.values as number[],
-      topK,
+      topK: fetchCount,
       includeMetadata: true,
       filter,
     });
 
     // Format results
-    const matches = results.matches?.map((match) => ({
+    let matches = results.matches?.map((match) => ({
       score: match.score,
-      profile: match.metadata,
+      profile: match.metadata as ProfileMetadata,
     })) || [];
+
+    // Re-rank with Grok if enabled
+    if (rerank && matches.length > 0) {
+      matches = await rerankWithGrok(
+        profileData.metadata as ProfileMetadata,
+        matches,
+        topK
+      );
+    } else {
+      matches = matches.slice(0, topK);
+    }
 
     return NextResponse.json({
       query_profile: profileData.metadata,
       matches,
+      reranked: rerank,
     });
   } catch (error) {
     console.error('Match error:', error);

@@ -52,7 +52,9 @@ function MatchContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [minFollowers, setMinFollowers] = useState<string>('');
+  const [minFollowers, setMinFollowers] = useState<number>(0);
+  const [maxFollowers, setMaxFollowers] = useState<number>(10000000);
+  const [showFollowerFilter, setShowFollowerFilter] = useState(false);
   const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
   const [creatorTweets, setCreatorTweets] = useState<TweetResult[]>([]);
   const [creatorStats, setCreatorStats] = useState<StatResult[]>([]);
@@ -91,7 +93,7 @@ function MatchContent() {
     }
   }, []);
 
-  const performMatch = useCallback(async (searchUsername: string, type: 'brand' | 'creator', minFollowersFilter?: string) => {
+  const performMatch = useCallback(async (searchUsername: string, type: 'brand' | 'creator', minFollowersFilter?: number, maxFollowersFilter?: number) => {
     if (!searchUsername.trim()) return;
     setLoading(true);
     setError(null);
@@ -111,7 +113,8 @@ function MatchContent() {
         type: type,
         top_k: '10',
       });
-      if (minFollowersFilter) params.set('min_followers', minFollowersFilter);
+      if (minFollowersFilter && minFollowersFilter > 0) params.set('min_followers', minFollowersFilter.toString());
+      if (maxFollowersFilter && maxFollowersFilter < 10000000) params.set('max_followers', maxFollowersFilter.toString());
 
       let response = await fetch(`/api/match?${params}`);
       let data = await response.json();
@@ -144,7 +147,7 @@ function MatchContent() {
     params.set('username', username.trim());
     params.set('type', searcherType);
     router.push(`/match?${params.toString()}`, { scroll: false });
-    await performMatch(username, searcherType, minFollowers);
+    await performMatch(username, searcherType, minFollowers, maxFollowers);
   };
 
   useEffect(() => {
@@ -428,19 +431,19 @@ function MatchContent() {
                   <option value="creator">Creator</option>
                 </select>
               </div>
-              <div className="w-32">
-                <label className="block text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">Min Followers</label>
-                <select
-                  value={minFollowers}
-                  onChange={(e) => setMinFollowers(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer"
-                >
-                  <option value="">Any</option>
-                  <option value="10000">10K+</option>
-                  <option value="100000">100K+</option>
-                  <option value="1000000">1M+</option>
-                </select>
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowFollowerFilter(!showFollowerFilter)}
+                className="px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/60 hover:text-white hover:bg-white/[0.05] hover:border-white/[0.12] transition-all flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <span className="text-sm">Filter</span>
+                {(minFollowers > 0 || maxFollowers < 10000000) && (
+                  <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                )}
+              </button>
               <button
                 type="submit"
                 disabled={loading || !username.trim()}
@@ -464,6 +467,128 @@ function MatchContent() {
                 )}
               </button>
             </div>
+
+            {/* Follower Range Filter */}
+            {showFollowerFilter && (
+              <div className="mt-3 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] animate-in fade-in slide-in-from-top-2 duration-200">
+                <label className="block text-xs font-medium text-white/40 uppercase tracking-wider mb-3">Follower Range</label>
+                
+                {/* Range Display */}
+                <div className="flex items-center justify-center gap-3 mb-3">
+                  <div className="text-center">
+                    <div className="text-xs text-white/40 mb-0.5">Min</div>
+                    <div className="text-sm font-medium text-white">{formatFollowers(minFollowers)}</div>
+                  </div>
+                  <div className="text-white/20">—</div>
+                  <div className="text-center">
+                    <div className="text-xs text-white/40 mb-0.5">Max</div>
+                    <div className="text-sm font-medium text-white">
+                      {maxFollowers >= 10000000 ? '∞' : formatFollowers(maxFollowers)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dual Range Slider */}
+                <div className="relative mb-3 pb-2">
+                  <div className="relative h-1.5 rounded-full bg-white/[0.05]">
+                    {/* Active range highlight */}
+                    <div 
+                      className="absolute h-full bg-white/20 rounded-full pointer-events-none"
+                      style={{
+                        left: `${(minFollowers / 10000000) * 100}%`,
+                        right: `${100 - (maxFollowers / 10000000) * 100}%`
+                      }}
+                    />
+                  
+                    {/* Min thumb slider */}
+                    <input
+                      type="range"
+                      min="0"
+                      max="10000000"
+                      step="10000"
+                      value={minFollowers}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (val <= maxFollowers) setMinFollowers(val);
+                      }}
+                      className="dual-range-slider"
+                    />
+                    
+                    {/* Max thumb slider */}
+                    <input
+                      type="range"
+                      min="0"
+                      max="10000000"
+                      step="50000"
+                      value={maxFollowers}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (val >= minFollowers) setMaxFollowers(val);
+                      }}
+                      className="dual-range-slider"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-between mb-4 text-[10px] text-white/20">
+                  <span>0</span>
+                  <span>2.5M</span>
+                  <span>5M</span>
+                  <span>7.5M</span>
+                  <span>10M+</span>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="mb-3">
+                  <div className="text-xs text-white/40 mb-2">Quick Filters</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => { setMinFollowers(0); setMaxFollowers(10000); }}
+                      className="px-2.5 py-1 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs text-white/60 hover:bg-white/[0.06] hover:border-white/[0.12] hover:text-white transition-all"
+                    >
+                      &lt;10K
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setMinFollowers(10000); setMaxFollowers(100000); }}
+                      className="px-2.5 py-1 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs text-white/60 hover:bg-white/[0.06] hover:border-white/[0.12] hover:text-white transition-all"
+                    >
+                      10K-100K
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setMinFollowers(100000); setMaxFollowers(1000000); }}
+                      className="px-2.5 py-1 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs text-white/60 hover:bg-white/[0.06] hover:border-white/[0.12] hover:text-white transition-all"
+                    >
+                      100K-1M
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setMinFollowers(1000000); setMaxFollowers(10000000); }}
+                      className="px-2.5 py-1 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs text-white/60 hover:bg-white/[0.06] hover:border-white/[0.12] hover:text-white transition-all"
+                    >
+                      1M+
+                    </button>
+                  </div>
+                </div>
+
+                {/* Apply Button */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setShowFollowerFilter(false);
+                    if (username.trim()) {
+                      await performMatch(username, searcherType, minFollowers, maxFollowers);
+                    }
+                  }}
+                  disabled={loading}
+                  className="relative z-10 w-full px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  Apply Filter
+                </button>
+              </div>
+            )}
           </form>
 
           {/* Status */}
@@ -530,16 +655,26 @@ function MatchContent() {
               {/* Quick Insights */}
               <div className="mb-6 grid grid-cols-3 gap-4">
                 {(() => {
-                  // Calculate best picks
-                  const highestMatch = matches[0]; // Already sorted by match score
+                  // Filter matches by follower range
+                  const filteredMatches = matches.filter(m => {
+                    const followers = m.profile.follower_count;
+                    const meetsMin = minFollowers === 0 || followers >= minFollowers;
+                    const meetsMax = maxFollowers >= 10000000 || followers <= maxFollowers;
+                    return meetsMin && meetsMax;
+                  });
+
+                  if (filteredMatches.length === 0) return null;
+
+                  // Calculate best picks from filtered matches
+                  const highestMatch = filteredMatches[0]; // Already sorted by match score
                   
-                  const mostCostEffective = matches.reduce((best, curr) => {
+                  const mostCostEffective = filteredMatches.reduce((best, curr) => {
                     const currCost = estimateCost(curr.profile.follower_count, curr.score);
                     const bestCost = estimateCost(best.profile.follower_count, best.score);
                     return (currCost.min + currCost.max) / 2 < (bestCost.min + bestCost.max) / 2 ? curr : best;
                   });
                   
-                  const highestReach = matches.reduce((best, curr) => 
+                  const highestReach = filteredMatches.reduce((best, curr) => 
                     curr.profile.follower_count > best.profile.follower_count ? curr : best
                   );
 
@@ -583,7 +718,12 @@ function MatchContent() {
               </div>
 
               <div className="space-y-3">
-              {matches.map((match, index) => (
+              {matches.filter(m => {
+                const followers = m.profile.follower_count;
+                const meetsMin = minFollowers === 0 || followers >= minFollowers;
+                const meetsMax = maxFollowers >= 10000000 || followers <= maxFollowers;
+                return meetsMin && meetsMax;
+              }).map((match, index) => (
                 <div
                   key={match.profile.username}
                   onClick={() => searcherType === 'brand' && handleDrillDown(match.profile.username)}

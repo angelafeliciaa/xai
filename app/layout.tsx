@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const hankenGrotesk = Hanken_Grotesk({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-hanken-grotesk",
+const gtStandard = localFont({
+  src: "./fonts/GT-Standard-M-Standard-Medium-Trial.otf",
+  variable: "--font-gt-standard",
+  weight: "500",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -20,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${hankenGrotesk.variable} antialiased`}>
+      <body className={`${gtStandard.variable} antialiased`}>
         {children}
       </body>
     </html>

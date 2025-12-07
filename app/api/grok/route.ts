@@ -169,7 +169,7 @@ Keep it concise and actionable.`;
         'Authorization': `Bearer ${XAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'grok-3-fast',
+        model: 'grok-4-1-fast-reasoning',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
