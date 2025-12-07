@@ -138,7 +138,7 @@ async function getAllProfiles(): Promise<ProfileMetadata[]> {
     includeMetadata: true,
   });
 
-  return (results.matches || []).map((match) => match.metadata as ProfileMetadata);
+  return (results.matches || []).map((match) => match.metadata as unknown as ProfileMetadata);
 }
 
 async function main() {

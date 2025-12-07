@@ -781,7 +781,7 @@ function MatchContent() {
                     curr.profile.follower_count > best.profile.follower_count ? curr : best
                   );
 
-                  const insights = [
+                  const insights: Array<{ label: string; creator: typeof highestMatch; metric: string; color: string }> = [
                     // { label: 'Best Match', creator: highestMatch, metric: `${(highestMatch.score * 100).toFixed(0)}%`, color: 'emerald' },
                     // { label: 'Most Affordable', creator: mostCostEffective, metric: `${formatCost(estimateCost(mostCostEffective.profile.follower_count, mostCostEffective.score).min)}+`, color: 'cyan' },
                     // { label: 'Highest Reach', creator: highestReach, metric: formatFollowers(highestReach.profile.follower_count), color: 'purple' },

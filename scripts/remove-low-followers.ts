@@ -41,7 +41,7 @@ async function main() {
     });
 
     if (listResult.vectors) {
-      allIds.push(...listResult.vectors.map(v => v.id));
+      allIds.push(...listResult.vectors.map(v => v.id).filter((id): id is string => id !== undefined));
     }
     paginationToken = listResult.pagination?.next;
   } while (paginationToken);
@@ -119,7 +119,7 @@ async function main() {
       });
 
       if (listResult.vectors) {
-        tweetIds.push(...listResult.vectors.map(v => v.id));
+        tweetIds.push(...listResult.vectors.map(v => v.id).filter((id): id is string => id !== undefined));
       }
       tweetPaginationToken = listResult.pagination?.next;
     } while (tweetPaginationToken);

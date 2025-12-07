@@ -11,6 +11,7 @@ const pinecone = new Pinecone({
 });
 
 const X_BEARER_TOKEN = process.env.X_BEARER_TOKEN;
+const XAI_API_KEY = process.env.XAI_API_KEY;
 const PROFILES_NAMESPACE = 'profiles';
 const TWEETS_NAMESPACE = 'tweets';
 const MAX_TWEETS = 25; // Increased for better embeddings
@@ -37,6 +38,95 @@ interface XTweet {
     like_count: number;
     retweet_count: number;
   };
+}
+
+interface GrokClassification {
+  type: 'brand' | 'creator';
+  confidence: 'high' | 'medium' | 'low';
+  reasoning: string;
+}
+
+async function validateWithGrok(
+  user: XUser,
+  tweets: XTweet[],
+  requestedType: 'brand' | 'creator'
+): Promise<{ valid: boolean; suggestedType: 'brand' | 'creator'; confidence: string; reasoning: string }> {
+  if (!XAI_API_KEY) {
+    // If no API key, skip validation and trust the requested type
+    return { valid: true, suggestedType: requestedType, confidence: 'skipped', reasoning: 'Grok validation skipped - no API key' };
+  }
+
+  const tweetText = tweets.slice(0, 5).map(t => t.text).join('\n- ') || 'No tweets available';
+
+  const prompt = `Analyze this X/Twitter profile and determine if it's a BRAND (company/organization) or CREATOR (individual person).
+
+## PROFILE:
+Username: @${user.username}
+Display Name: ${user.name}
+Bio: ${user.description || 'No bio'}
+Followers: ${user.public_metrics?.followers_count?.toLocaleString() || 0}
+Verified: ${user.verified ? 'Yes' : 'No'}
+Verified Type: ${user.verified_type || 'N/A'}
+
+## SAMPLE TWEETS:
+- ${tweetText}
+
+## CLASSIFICATION GUIDELINES:
+- BRAND: Company accounts, official product/service accounts, organizations, media outlets, music groups, TV shows
+- CREATOR: Individual people, influencers, founders (personal accounts), solo artists
+
+Note: Personal accounts of founders/CEOs are CREATORS even if they talk about their company.
+Music groups, media brands, publishers, and organizations are BRANDS.`;
+
+  const responseSchema = {
+    type: 'object',
+    properties: {
+      type: { type: 'string', enum: ['brand', 'creator'] },
+      confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+      reasoning: { type: 'string' },
+    },
+    required: ['type', 'confidence', 'reasoning'],
+    additionalProperties: false,
+  };
+
+  try {
+    const response = await fetch('https://api.x.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${XAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'grok-3-mini',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 200,
+        temperature: 0.1,
+        response_format: {
+          type: 'json_schema',
+          json_schema: { name: 'classification', strict: true, schema: responseSchema },
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`Grok API error: ${response.status}`);
+      // On API error, allow ingestion with requested type
+      return { valid: true, suggestedType: requestedType, confidence: 'error', reasoning: 'Grok API error - using requested type' };
+    }
+
+    const data = await response.json();
+    const result: GrokClassification = JSON.parse(data.choices?.[0]?.message?.content || '{}');
+
+    return {
+      valid: result.type === requestedType,
+      suggestedType: result.type,
+      confidence: result.confidence,
+      reasoning: result.reasoning,
+    };
+  } catch (error) {
+    console.error('Grok validation error:', error);
+    return { valid: true, suggestedType: requestedType, confidence: 'error', reasoning: 'Validation failed - using requested type' };
+  }
 }
 
 async function fetchXUser(username: string): Promise<XUser> {
@@ -133,7 +223,7 @@ function computeProfileEmbedding(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, type = 'creator' } = body;
+    const { username, type = 'creator', skipValidation = false, autoCorrect = true } = body;
 
     if (!username) {
       return NextResponse.json({ error: 'Username is required' }, { status: 400 });
@@ -146,18 +236,48 @@ export async function POST(request: NextRequest) {
     const indexName = process.env.PINECONE_INDEX!;
     const index = pinecone.index(indexName);
 
+    // Fetch user from X first (needed for validation)
+    const user = await fetchXUser(username);
+
+    // Fetch tweets
+    const tweets = await fetchXTweets(user.id);
+
+    // Validate classification with Grok (unless skipped)
+    let finalType: 'brand' | 'creator' = type;
+    let validationResult = null;
+
+    if (!skipValidation) {
+      validationResult = await validateWithGrok(user, tweets, type);
+
+      if (!validationResult.valid && validationResult.confidence === 'high') {
+        if (autoCorrect) {
+          // Auto-correct the type based on Grok's classification
+          finalType = validationResult.suggestedType;
+          console.log(`Auto-corrected @${username}: ${type} -> ${finalType} (${validationResult.reasoning})`);
+        } else {
+          // Reject the ingestion
+          return NextResponse.json({
+            error: 'Classification mismatch',
+            message: `Requested type '${type}' but Grok classified as '${validationResult.suggestedType}' with high confidence`,
+            suggestedType: validationResult.suggestedType,
+            reasoning: validationResult.reasoning,
+          }, { status: 400 });
+        }
+      }
+    }
+
     // Normalize username to lowercase to prevent duplicates
     const normalizedUsername = username.toLowerCase();
-    const vectorId = `${type}_${normalizedUsername}`;
+    const vectorId = `${finalType}_${normalizedUsername}`;
 
     // Check if already exists (also check common case variations)
     const caseVariations = [
-      `${type}_${username}`,
-      `${type}_${username.toLowerCase()}`,
-      `${type}_${username.toUpperCase()}`,
-      `${type}_${username.charAt(0).toUpperCase() + username.slice(1).toLowerCase()}`,
+      `${finalType}_${username}`,
+      `${finalType}_${username.toLowerCase()}`,
+      `${finalType}_${username.toUpperCase()}`,
+      `${finalType}_${username.charAt(0).toUpperCase() + username.slice(1).toLowerCase()}`,
     ];
-    const uniqueIds = [...new Set(caseVariations)];
+    const uniqueIds = Array.from(new Set(caseVariations));
 
     try {
       const existing = await index.namespace(PROFILES_NAMESPACE).fetch(uniqueIds);
@@ -173,12 +293,6 @@ export async function POST(request: NextRequest) {
     } catch {
       // Profile doesn't exist, continue with ingestion
     }
-
-    // Fetch user from X
-    const user = await fetchXUser(username);
-
-    // Fetch tweets
-    const tweets = await fetchXTweets(user.id);
 
     if (tweets.length === 0) {
       return NextResponse.json(
@@ -215,7 +329,7 @@ export async function POST(request: NextRequest) {
 
     // Build metadata (no null values)
     const metadata: Record<string, unknown> = {
-      type,
+      type: finalType,
       user_id: user.id,
       username: user.username,
       name: user.name,
@@ -258,12 +372,22 @@ export async function POST(request: NextRequest) {
 
     await index.namespace(TWEETS_NAMESPACE).upsert(tweetVectors);
 
-    return NextResponse.json({
+    const response: Record<string, unknown> = {
       message: 'Profile ingested successfully',
       profile: metadata,
       tweets_count: tweets.length,
       existed: false,
-    });
+    };
+
+    // Include validation info if type was auto-corrected
+    if (validationResult && finalType !== type) {
+      response.autoCorrected = true;
+      response.originalType = type;
+      response.correctedType = finalType;
+      response.validationReasoning = validationResult.reasoning;
+    }
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Ingest error:', error);
     return NextResponse.json(

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
@@ -43,8 +44,15 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="p-6 pb-8">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-            <span className="text-black font-semibold text-sm">X</span>
+          <div className="w-8 h-8 rounded-lg overflow-hidden group-hover:scale-105 transition-transform">
+            <Image
+              src="/images/logo-64.png"
+              alt="CreatorMatch Logo"
+              width={32}
+              height={32}
+              className="w-full h-full object-cover"
+              priority
+            />
           </div>
           <div>
             <h1 className="text-white font-medium text-sm tracking-tight">CreatorMatch</h1>

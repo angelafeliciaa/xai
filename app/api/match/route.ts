@@ -234,13 +234,13 @@ export async function GET(request: NextRequest) {
     // Format results
     let matches = results.matches?.map((match) => ({
       score: match.score,
-      profile: match.metadata as ProfileMetadata,
+      profile: match.metadata as unknown as ProfileMetadata,
     })) || [];
 
     // Re-rank with Grok if enabled
     if (rerank && matches.length > 0) {
       matches = await rerankWithGrok(
-        profileData.metadata as ProfileMetadata,
+        profileData.metadata as unknown as ProfileMetadata,
         matches,
         topK
       );
