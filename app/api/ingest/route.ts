@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
       {
         id: vectorId,
         values: profileEmbedding,
-        metadata,
+        metadata: metadata as Record<string, string | number | boolean | string[]>,
       },
     ]);
 
@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
         author_followers: user.public_metrics?.followers_count || 0,
         likes: tweet.public_metrics?.like_count || 0,
         retweets: tweet.public_metrics?.retweet_count || 0,
-      },
+      } as Record<string, string | number>,
     }));
 
     await index.namespace(TWEETS_NAMESPACE).upsert(tweetVectors);
