@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 const XAI_API_KEY = process.env.XAI_API_KEY;
 const XAI_API_URL = 'https://api.x.ai/v1/chat/completions';
 
+const X_BEARER_TOKEN = process.env.X_BEARER_TOKEN;
+const X_API_URL = 'https://api.x.com/2/users/by/username/';
+const USERFIELDS = "public_metrics"
+
 interface ProfileData {
   name: string;
   username: string;
@@ -29,6 +33,22 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const engagement = await fetch(
+      `https://api.x.com/2/users/by/username/${creator.username}?user.fields=${USERFIELDS}`,
+      {
+        headers: { Authorization: `Bearer ${X_BEARER_TOKEN}` },
+      }
+    );
+  
+    if (!engagement.ok) {
+      throw new Error(`X API error: ${engagement.status}`);
+    }
+  
+    const engagementData = await engagement.json();
+    if (!engagementData.data) {
+      throw new Error(`User not found: ${creator.username}`);
+    }  
 
     let systemPrompt = '';
     let userPrompt = '';
@@ -83,6 +103,8 @@ Recent tweets:
 ${formatTweets(creator.sample_tweets)}
 
 Match Score: ${Math.round(matchScore * 100)}%
+
+The user's engagement rate is: ${engagementData}
 
 Provide realistic predictions in this EXACT format:
 

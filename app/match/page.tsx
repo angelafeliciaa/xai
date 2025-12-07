@@ -34,12 +34,18 @@ interface TweetResult {
   };
 }
 
+interface StatResult {
+  followers_count: number;
+  following_count: number;
+  tweet_count: number;
+  listed_count: number;
+}
+
 function MatchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [searcherType, setSearcherType] = useState<'brand' | 'creator'>('brand');
-  const [placeholder, setPlaceholder] = useState('elon');
   const [initialized, setInitialized] = useState(false);
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [queryProfile, setQueryProfile] = useState<ProfileMetadata | null>(null);
@@ -49,6 +55,7 @@ function MatchContent() {
   const [minFollowers, setMinFollowers] = useState<string>('');
   const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
   const [creatorTweets, setCreatorTweets] = useState<TweetResult[]>([]);
+  const [creatorStats, setCreatorStats] = useState<StatResult[]>([]);
   const [loadingTweets, setLoadingTweets] = useState(false);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
@@ -91,6 +98,7 @@ function MatchContent() {
     setStatusMessage(null);
     setSelectedCreator(null);
     setCreatorTweets([]);
+    setCreatorStats([]);
     setExplanations({});
     setCampaignBrief(null);
     setPredictions({});
@@ -164,6 +172,20 @@ function MatchContent() {
     setSelectedCreator(creatorUsername);
     setLoadingTweets(true);
     try {
+    //   const response = await fetch('/api/engagement', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       brand_username: username.trim(),
+    //       creator_username: creatorUsername,
+    //       top_k: 5,
+    //     }),
+    //   });
+
+    //   const data = await response.json();
+    //   if (!response.ok) throw new Error(data.error || 'Failed to get tweets');
+    //   setCreatorStats(data.public_metrics);
+    //   setCreatorTweets(data.tweets);
       const response = await fetch('/api/match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
