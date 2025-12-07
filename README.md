@@ -6,6 +6,7 @@ A minimalistic User-Generated Content platform for brands to create and manage i
 
 - **Clean Apple-style Design** - Minimalistic UI with Hanken Grotesk font
 - **Multi-step Campaign Creation** - 5-step workflow for creating campaigns
+- **Product Management** - Add and manage products for campaigns
 - **Campaign Management** - View and manage all your campaigns
 - **Creator Preferences** - Filter creators by age, location, gender, ethnicity, and more
 - **Asset Requirements** - Specify deliverables and content guidelines
