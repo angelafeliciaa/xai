@@ -37,11 +37,36 @@ export default function MatchPage() {
   const [queryProfile, setQueryProfile] = useState<ProfileMetadata | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // Drill-down state
   const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
   const [creatorTweets, setCreatorTweets] = useState<TweetResult[]>([]);
   const [loadingTweets, setLoadingTweets] = useState(false);
+
+  const ingestProfile = async (user: string, type: string): Promise<boolean> => {
+    setStatusMessage(`Ingesting @${user} from X (this may take a few seconds)...`);
+
+    try {
+      const response = await fetch('/api/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, type }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Ingestion failed');
+      }
+
+      setStatusMessage(data.existed ? 'Profile found!' : `Ingested @${user} successfully!`);
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to ingest profile');
+      return false;
+    }
+  };
 
   const handleMatch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +74,7 @@ export default function MatchPage() {
 
     setLoading(true);
     setError(null);
+    setStatusMessage(null);
     setSelectedCreator(null);
     setCreatorTweets([]);
 
@@ -59,13 +85,28 @@ export default function MatchPage() {
         top_k: '10',
       });
 
-      const response = await fetch(`/api/match?${params}`);
-      const data = await response.json();
+      let response = await fetch(`/api/match?${params}`);
+      let data = await response.json();
+
+      // If profile not found, try to ingest it
+      if (response.status === 404 && data.error?.includes('not found')) {
+        const ingested = await ingestProfile(username.trim(), searcherType);
+        if (!ingested) {
+          setLoading(false);
+          return;
+        }
+
+        // Retry the match
+        setStatusMessage('Finding matches...');
+        response = await fetch(`/api/match?${params}`);
+        data = await response.json();
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'Match failed');
       }
 
+      setStatusMessage(null);
       setQueryProfile(data.query_profile);
       setMatches(data.matches);
     } catch (err) {
@@ -172,6 +213,14 @@ export default function MatchPage() {
               </button>
             </div>
           </form>
+
+          {/* Status Message */}
+          {statusMessage && !error && (
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+              <div className="animate-spin h-4 w-4 border-2 border-gray-400 border-t-transparent rounded-full"></div>
+              <p className="text-gray-700">{statusMessage}</p>
+            </div>
+          )}
 
           {/* Error */}
           {error && (

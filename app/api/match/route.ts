@@ -8,6 +8,19 @@ const pinecone = new Pinecone({
 const PROFILES_NAMESPACE = 'profiles';
 const TWEETS_NAMESPACE = 'tweets';
 
+// Generate case variations for username lookup
+function getUsernameVariations(username: string): string[] {
+  const variations = new Set<string>();
+  variations.add(username);
+  variations.add(username.toLowerCase());
+  variations.add(username.toUpperCase());
+  // Title case (first letter uppercase)
+  variations.add(username.charAt(0).toUpperCase() + username.slice(1).toLowerCase());
+  // Original with first letter lowercase
+  variations.add(username.charAt(0).toLowerCase() + username.slice(1));
+  return Array.from(variations);
+}
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -23,22 +36,26 @@ export async function GET(request: NextRequest) {
     const indexName = process.env.PINECONE_INDEX || 'ugc-creators-test';
     const index = pinecone.index(indexName);
 
-    // Try to find the profile
+    // Try to find the profile with case variations
     let profileData = null;
-    for (const prefix of ['brand', 'creator']) {
-      const vectorId = `${prefix}_${username}`;
-      try {
-        const result = await index.namespace(PROFILES_NAMESPACE).fetch([vectorId]);
-        if (result.records && result.records[vectorId]) {
-          profileData = {
-            id: vectorId,
-            values: result.records[vectorId].values,
-            metadata: result.records[vectorId].metadata,
-          };
-          break;
+    const usernameVariations = getUsernameVariations(username);
+
+    outer: for (const prefix of ['brand', 'creator']) {
+      for (const usernameVar of usernameVariations) {
+        const vectorId = `${prefix}_${usernameVar}`;
+        try {
+          const result = await index.namespace(PROFILES_NAMESPACE).fetch([vectorId]);
+          if (result.records && result.records[vectorId]) {
+            profileData = {
+              id: vectorId,
+              values: result.records[vectorId].values,
+              metadata: result.records[vectorId].metadata,
+            };
+            break outer;
+          }
+        } catch {
+          continue;
         }
-      } catch {
-        continue;
       }
     }
 
@@ -101,31 +118,46 @@ export async function POST(request: NextRequest) {
     const indexName = process.env.PINECONE_INDEX || 'ugc-creators-test';
     const index = pinecone.index(indexName);
 
-    // Get brand profile embedding
-    const brandId = `brand_${brand_username}`;
-    const brandResult = await index.namespace(PROFILES_NAMESPACE).fetch([brandId]);
+    // Get brand profile embedding with case variations
+    let brandVector: number[] | null = null;
+    const brandVariations = getUsernameVariations(brand_username);
 
-    if (!brandResult.records || !brandResult.records[brandId]) {
+    for (const brandVar of brandVariations) {
+      const brandId = `brand_${brandVar}`;
+      const brandResult = await index.namespace(PROFILES_NAMESPACE).fetch([brandId]);
+      if (brandResult.records && brandResult.records[brandId]) {
+        brandVector = brandResult.records[brandId].values as number[];
+        break;
+      }
+    }
+
+    if (!brandVector) {
       return NextResponse.json(
         { error: `Brand @${brand_username} not found` },
         { status: 404 }
       );
     }
 
-    const brandVector = brandResult.records[brandId].values as number[];
+    // Search creator's tweets with case variations
+    const creatorVariations = getUsernameVariations(creator_username);
+    let tweets: { score: number | undefined; tweet: Record<string, unknown> }[] = [];
 
-    // Search creator's tweets
-    const results = await index.namespace(TWEETS_NAMESPACE).query({
-      vector: brandVector,
-      topK: top_k,
-      includeMetadata: true,
-      filter: { author_username: creator_username },
-    });
+    for (const creatorVar of creatorVariations) {
+      const results = await index.namespace(TWEETS_NAMESPACE).query({
+        vector: brandVector,
+        topK: top_k,
+        includeMetadata: true,
+        filter: { author_username: creatorVar },
+      });
 
-    const tweets = results.matches?.map((match) => ({
-      score: match.score,
-      tweet: match.metadata,
-    })) || [];
+      if (results.matches && results.matches.length > 0) {
+        tweets = results.matches.map((match) => ({
+          score: match.score,
+          tweet: match.metadata as Record<string, unknown>,
+        }));
+        break;
+      }
+    }
 
     return NextResponse.json({
       brand: brand_username,
