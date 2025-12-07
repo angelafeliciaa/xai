@@ -340,12 +340,9 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
       return (value - minVal) / (maxVal - minVal);
     };
 
-    const xRange = 4; // X bias from followers
-    const yRange = 3; // Y = engagement
-    const zBase = -5; // main ring depth
-
     const n = sorted.length;
-    const arc = Math.PI * 1.1; // front-facing arc
+    const ringRadius = 5; // donut radius
+    const ringCenterZ = -8; // how far in front
 
     return sorted.map((m, index) => {
       const followerLog = Math.log10((m.profile.follower_count ?? 0) + 1);
@@ -356,26 +353,28 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
       const ne = norm(engagement, minEng, maxEng);
       const ns = norm(score, minScore, maxScore);
 
-      // Place on a tighter arc ring
-      const t = n <= 1 ? 0.5 : index / (n - 1);
-      const angle = (t - 0.5) * arc;
-      const ringRadius = 4.5;
-      const ringX = Math.sin(angle) * ringRadius;
-      const ringZ = -Math.cos(angle) * ringRadius + zBase;
+      // Create a full donut/ring shape - distribute evenly in a circle
+      const angle = (index / n) * Math.PI * 2; // full 360 degrees
+      
+      // Base ring position
+      const x = Math.sin(angle) * ringRadius;
+      const z = ringCenterZ + Math.cos(angle) * ringRadius;
+      
+      // Y = engagement (vertical position)
+      const y = (ne - 0.5) * 3;
+      
+      // Brand fit pulls slightly closer/further (but keeps ring intact)
+      const zNudge = (ns - 0.5) * 0.8;
+      
+      // Small radial offset based on followers (bigger = slightly further out)
+      const radiusNudge = (nf - 0.5) * 0.6;
 
-      // Followers still bias left/right along the arc
-      const xOffset = (nf - 0.5) * xRange * 0.7;
-      // Engagement = vertical (tighter range)
-      const y = (ne - 0.5) * 2 * yRange * 0.8;
-      // Brand fit nudges closer / further from camera but keeps a band
-      const zOffset = (1 - ns) * 1.0;
+      // tiny jitter to avoid exact overlap
+      const jitterX = Math.sin(index * 12.9898) * 0.15;
+      const jitterY = Math.cos(index * 78.233) * 0.15;
 
-      const x = ringX + xOffset;
-      const z = ringZ + zOffset;
-
-      // small jitter to avoid perfect overlap
-      const jitterX = Math.sin(index * 12.9898) * 0.25;
-      const jitterY = Math.cos(index * 78.233) * 0.2;
+      const finalX = x * (1 + radiusNudge / ringRadius) + jitterX;
+      const finalZ = (z - ringCenterZ) * (1 + radiusNudge / ringRadius) + ringCenterZ + zNudge;
 
       return {
         id: m.profile.username,
@@ -386,8 +385,8 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
         profileImageUrl: m.profile.profile_image_url,
         score: m.score,
         engagement,
-        position: [x + jitterX, y + jitterY, z] as [number, number, number],
-        radius: 0.7,
+        position: [finalX, y + jitterY, finalZ] as [number, number, number],
+        radius: 0.6,
       };
     });
   }, [matches]);
@@ -461,65 +460,22 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
             </div>
             <div className="space-y-1.5">
               <p className="text-[9px] text-black/70">
-                <span className="font-medium">X · Followers</span>{" "}
-                <span className="text-black/45">→ bigger audience to the right</span>
+                <span className="font-medium">Ring · Followers</span>{" "}
+                <span className="text-black/45">larger audience = further out</span>
               </p>
               <p className="text-[9px] text-black/70">
-                <span className="font-medium">Y · Engagement</span>{" "}
-                <span className="text-black/45">↑ more active at the top</span>
+                <span className="font-medium">Height · Engagement</span>{" "}
+                <span className="text-black/45">higher = more active</span>
               </p>
               <p className="text-[9px] text-black/70">
-                <span className="font-medium">Z · Brand fit</span>{" "}
-                <span className="text-black/45">closer = stronger alignment</span>
+                <span className="font-medium">Depth · Brand fit</span>{" "}
+                <span className="text-black/45">closer = stronger match</span>
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Focus card details (bottom-left) */}
-      {currentCard && (
-        <div className="pointer-events-none absolute left-4 bottom-4 z-30 max-w-xs">
-          <div className="pointer-events-auto rounded-2xl bg-[#fdf7eb]/95 border border-black/5 px-4 py-3 shadow-[0_22px_60px_rgba(0,0,0,0.35)] backdrop-blur-md">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-black/40 mb-1.5">
-              Profile in focus
-            </p>
-            <div className="flex items-center gap-2 mb-1.5">
-              <div className="h-8 w-8 rounded-full bg-black/5 flex items-center justify-center text-xs font-medium text-black/50 overflow-hidden">
-                {currentCard.profileImageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={currentCard.profileImageUrl.replace("_normal", "_bigger")}
-                    alt={currentCard.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span>{currentCard.name.charAt(0)}</span>
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-black/80 truncate">
-                  {currentCard.name}
-                </p>
-                <p className="text-[11px] text-black/45 truncate">
-                  @{currentCard.username}
-                </p>
-              </div>
-              <div className="ml-auto text-right">
-                <p className="text-[11px] text-black/45">Match</p>
-                <p className="text-sm font-semibold text-black/80">
-                  {(currentCard.score * 100).toFixed(0)}%
-                </p>
-              </div>
-            </div>
-            {currentCard.description && (
-              <p className="mt-1 text-[11px] leading-snug text-black/55 line-clamp-4">
-                {currentCard.description}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Pause overlay */}
       {paused && !showIntro && (
@@ -562,7 +518,7 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
               Navigate your matches in 3D
             </h2>
             <p className="text-sm text-black/65 mb-4">
-              Each card lives in a 3D map: X = followers, Y = engagement, Z = alignment with your brand.
+              Cards form a ring around you: height shows engagement, distance shows follower size, depth shows brand fit.
             </p>
             <div className="mt-2 mb-5 grid grid-cols-2 gap-3 text-[11px] text-black/70">
               <div className="rounded-2xl bg-black/4 px-3 py-2">
