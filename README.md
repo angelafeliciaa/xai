@@ -62,4 +62,4 @@ This platform follows Apple's design principles:
 - Ample white space
 - Clear typography hierarchy
 - Subtle interactions and transitions
-- Focus on content and functionality
+- Focus on content and functionality 
