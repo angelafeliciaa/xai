@@ -155,9 +155,43 @@ Based on analyzing their actual content, generate a campaign proposal that feels
 4. **Expected Outcome** (1 sentence)
 
 Keep it concise and actionable.`;
+    } else if (action === 'generate_outreach') {
+      systemPrompt = `You are an expert at writing warm, personalized outreach DMs for brand-creator partnerships. Your messages should be:
+- Friendly and conversational (not corporate or salesy)
+- Specific to the creator's content and style
+- Brief (under 280 characters ideally, max 500)
+- Include a clear but soft call-to-action
+- Feel authentic, like a real person reaching out`;
+
+      const formatTweets = (tweets: string[] | undefined, limit = 5) => {
+        if (!tweets?.length) return 'No tweets available';
+        return tweets.slice(0, limit).map((t: string, i: number) => `  ${i + 1}. "${t}"`).join('\n');
+      };
+
+      userPrompt = `Write a DM outreach message for ${brand.name} (@${brand.username}) to reach out to creator ${creator.name} (@${creator.username}).
+
+## BRAND: ${brand.name} (@${brand.username})
+Bio: ${brand.description || 'No bio available'}
+Recent tweets:
+${formatTweets(brand.sample_tweets)}
+
+## CREATOR: ${creator.name} (@${creator.username})
+Bio: ${creator.description || 'No bio available'}
+Followers: ${formatFollowers(creator.follower_count)}
+Recent tweets:
+${formatTweets(creator.sample_tweets)}
+
+Match Score: ${Math.round(matchScore * 100)}%
+
+Write a short, personalized DM that:
+1. Opens with something specific about their content (reference a theme from their tweets)
+2. Briefly introduces the brand partnership opportunity
+3. Ends with a soft CTA (like "Would love to chat if you're interested!")
+
+Keep it under 280 characters if possible. Be genuine and conversational, not salesy. Output ONLY the message text, nothing else.`;
     } else {
       return NextResponse.json(
-        { error: 'Invalid action. Use "explain_match", "predict_performance", or "campaign_brief"' },
+        { error: 'Invalid action. Use "explain_match", "predict_performance", "campaign_brief", or "generate_outreach"' },
         { status: 400 }
       );
     }

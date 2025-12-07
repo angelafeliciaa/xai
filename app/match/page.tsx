@@ -76,6 +76,13 @@ function MatchContent() {
   const [loadingPrediction, setLoadingPrediction] = useState<string | null>(null);
   const [expandedPrediction, setExpandedPrediction] = useState<string | null>(null);
 
+  // Outreach DM
+  const [outreachMessage, setOutreachMessage] = useState<string | null>(null);
+  const [loadingOutreach, setLoadingOutreach] = useState(false);
+  const [showOutreachModal, setShowOutreachModal] = useState(false);
+  const [outreachCreator, setOutreachCreator] = useState<ProfileMetadata | null>(null);
+  const [copiedOutreach, setCopiedOutreach] = useState(false);
+
   const ingestProfile = useCallback(async (user: string, type: string): Promise<boolean> => {
     setStatusMessage(`Ingesting @${user} from X...`);
     try {
@@ -237,7 +244,7 @@ function MatchContent() {
       if (match && !predictions[creatorUsername] && !loadingPrediction) {
         // Trigger prediction automatically
         setTimeout(() => {
-          const fakeEvent = { stopPropagation: () => {} } as React.MouseEvent;
+          const fakeEvent = { stopPropagation: () => {}, preventDefault: () => {} } as React.MouseEvent;
           handlePredictPerformance(fakeEvent, match);
         }, 500); // Small delay to avoid overwhelming
       }
@@ -251,13 +258,15 @@ function MatchContent() {
 
   const handleExplainMatch = async (e: React.MouseEvent, match: MatchResult) => {
     e.stopPropagation();
+    e.preventDefault();
     if (!queryProfile) return;
-    if (explanations[match.profile.username]) {
-      setExpandedExplanation(expandedExplanation === match.profile.username ? null : match.profile.username);
+    const username = match.profile.username;
+    if (explanations[username]) {
+      setExpandedExplanation(prev => prev === username ? null : username);
       return;
     }
 
-    setLoadingExplanation(match.profile.username);
+    setLoadingExplanation(username);
     try {
       const response = await fetch('/api/grok', {
         method: 'POST',
@@ -283,13 +292,15 @@ function MatchContent() {
 
   const handlePredictPerformance = async (e: React.MouseEvent, match: MatchResult) => {
     e.stopPropagation();
+    e.preventDefault();
     if (!queryProfile) return;
-    if (predictions[match.profile.username]) {
-      setExpandedPrediction(expandedPrediction === match.profile.username ? null : match.profile.username);
+    const username = match.profile.username;
+    if (predictions[username]) {
+      setExpandedPrediction(prev => prev === username ? null : username);
       return;
     }
 
-    setLoadingPrediction(match.profile.username);
+    setLoadingPrediction(username);
     try {
       const response = await fetch('/api/grok', {
         method: 'POST',
@@ -407,6 +418,38 @@ function MatchContent() {
       setCampaignBrief('Failed to generate campaign brief. Please try again.');
     } finally {
       setLoadingBrief(false);
+    }
+  };
+
+  const handleGenerateOutreach = async (e: React.MouseEvent, creator: ProfileMetadata, matchScore: number) => {
+    e.stopPropagation();
+    if (!queryProfile) return;
+
+    setOutreachCreator(creator);
+    setShowOutreachModal(true);
+    setLoadingOutreach(true);
+    setOutreachMessage(null);
+    setCopiedOutreach(false);
+
+    try {
+      const response = await fetch('/api/grok', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'generate_outreach',
+          brand: queryProfile,
+          creator: creator,
+          matchScore: matchScore,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to generate outreach');
+      setOutreachMessage(data.content);
+    } catch (err) {
+      console.error('Outreach generation error:', err);
+      setOutreachMessage('Failed to generate outreach message. Please try again.');
+    } finally {
+      setLoadingOutreach(false);
     }
   };
 
@@ -838,7 +881,19 @@ function MatchContent() {
               }).map((match, index) => (
                 <div
                   key={match.profile.username}
-                  onClick={() => searcherType === 'brand' && handleDrillDown(match.profile.username)}
+                  onClick={() => {
+                    if (searcherType !== 'brand') return;
+                    // Toggle: if already selected, deselect; otherwise select
+                    if (selectedCreator === match.profile.username) {
+                      setSelectedCreator(null);
+                      setCreatorTweets([]);
+                      setExpandedExplanation(null);
+                      setExpandedPrediction(null);
+                      setExpandedCard(null);
+                    } else {
+                      handleDrillDown(match.profile.username);
+                    }
+                  }}
                   className={`group relative rounded-2xl p-[1px] transition-all duration-300 cursor-pointer ${
                     selectedCreator === match.profile.username
                       ? 'bg-gradient-to-r from-white/30 to-white/10'
@@ -1014,7 +1069,9 @@ function MatchContent() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setExpandedCard(expandedCard === match.profile.username ? null : match.profile.username);
+                            e.preventDefault();
+                            const username = match.profile.username;
+                            setExpandedCard(prev => prev === username ? null : username);
                           }}
                           className="text-xs text-white/30 hover:text-white/50 transition-colors flex items-center gap-1"
                         >
@@ -1025,15 +1082,26 @@ function MatchContent() {
                         </button>
 
                         {selectedCreator === match.profile.username && (
-                          <button
-                            onClick={(e) => handleGenerateBrief(e, match.profile)}
-                            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium hover:from-blue-500/30 hover:to-cyan-500/20 transition-all flex items-center gap-1.5"
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Generate Campaign Brief
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={(e) => handleGenerateBrief(e, match.profile)}
+                              className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium hover:from-blue-500/30 hover:to-cyan-500/20 transition-all flex items-center gap-1.5"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Campaign Brief
+                            </button>
+                            <button
+                              onClick={(e) => handleGenerateOutreach(e, match.profile, match.score)}
+                              className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-green-500/20 to-emerald-500/10 border border-green-500/20 text-green-400 text-xs font-medium hover:from-green-500/30 hover:to-emerald-500/20 transition-all flex items-center gap-1.5"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                              </svg>
+                              Reach Out
+                            </button>
+                          </div>
                         )}
                       </div>
                     )}
@@ -1151,6 +1219,106 @@ function MatchContent() {
                   </svg>
                   Copy Brief
                 </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Outreach DM Modal */}
+      {showOutreachModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl max-w-lg w-full overflow-hidden">
+            <div className="p-6 border-b border-white/[0.06] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {outreachCreator?.profile_image_url && (
+                  <img
+                    src={outreachCreator.profile_image_url.replace('_normal', '_bigger')}
+                    alt={outreachCreator.name}
+                    className="w-10 h-10 rounded-full"
+                  />
+                )}
+                <div>
+                  <h2 className="text-lg font-medium text-white">Reach Out to @{outreachCreator?.username}</h2>
+                  <p className="text-sm text-white/40">Personalized DM message</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowOutreachModal(false)}
+                className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+              >
+                <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              {loadingOutreach ? (
+                <div className="py-8">
+                  <GrokLoader />
+                </div>
+              ) : outreachMessage ? (
+                <div className="space-y-4">
+                  <div className="relative">
+                    <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white/80 text-sm leading-relaxed whitespace-pre-wrap">
+                      {outreachMessage}
+                    </div>
+                    <div className="absolute top-2 right-2">
+                      <span className="text-xs text-white/30">{outreachMessage.length} chars</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-white/40 text-center">
+                    Copy this message and send it via X DM
+                  </p>
+                </div>
+              ) : null}
+            </div>
+            {!loadingOutreach && outreachMessage && (
+              <div className="p-4 border-t border-white/[0.06] flex justify-end gap-3">
+                <button
+                  onClick={() => setShowOutreachModal(false)}
+                  className="px-4 py-2 rounded-lg bg-white/5 text-white/60 text-sm font-medium hover:bg-white/10 transition-colors"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(outreachMessage);
+                    setCopiedOutreach(true);
+                    setTimeout(() => setCopiedOutreach(false), 2000);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-white/10 text-white text-sm font-medium hover:bg-white/15 transition-colors flex items-center gap-2"
+                >
+                  {copiedOutreach ? (
+                    <>
+                      <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                      Copy Message
+                    </>
+                  )}
+                </button>
+                <a
+                  href={`https://x.com/messages/compose?recipient_id=${outreachCreator?.username}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(outreachMessage);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                  Open DM on X
+                </a>
               </div>
             )}
           </div>

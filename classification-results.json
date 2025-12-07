@@ -1,16 +1,664 @@
 {
-  "timestamp": "2025-12-07T16:02:53.561Z",
+  "timestamp": "2025-12-07T18:35:25.154Z",
   "status": "complete",
-  "totalProfiles": 341,
-  "correctlyClassified": 330,
+  "totalProfiles": 928,
+  "correctlyClassified": 809,
   "mismatches": [
     {
-      "username": "yeti",
-      "name": "Dustin Kimmel",
+      "username": "JacobS",
+      "name": "Jacob Sørensen",
       "currentType": "brand",
       "suggestedType": "creator",
       "confidence": "high",
-      "reasoning": "The profile's display name is a personal name, Dustin Kimmel, and the bio describes an individual's professional role at a company, indicating it is a personal account rather than an official brand or organization account.",
+      "reasoning": "The profile features a personal name (Jacob Sørensen) in both username and display name, with a bio describing individual professional activities in marketing. Sample tweets express personal opinions, share articles, and use first-person language, indicating an individual creator rather than a brand or organization.",
+      "mismatch": true
+    },
+    {
+      "username": "Realty_Income",
+      "name": "Carlisle Mitchell",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "medium",
+      "reasoning": "The display name 'Carlisle Mitchell' and bio promoting following Carlisle Mitchell indicate this is an individual's personal account, despite the username @Realty_Income resembling a company name. Low followers (17) and lack of verification further suggest it's not an official brand or organization account.",
+      "mismatch": true
+    },
+    {
+      "username": "Saic",
+      "name": "Sai",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile features a personal display name 'Sai', casual bio 'Nobody', and informal, opinionated tweets about iOS design and updates in Chinese, which align with an individual tech influencer's style rather than a corporate brand account.",
+      "mismatch": true
+    },
+    {
+      "username": "Northrop",
+      "name": "Gerard Gomes",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The display name 'Gerard Gomes' indicates an individual person, and the tweets cover diverse personal interests like crypto, cars, sports, fitness, and politics without any promotion of a company or organization. Low followers and lack of verification further support it being a personal creator account rather than a brand.",
+      "mismatch": true
+    },
+    {
+      "username": "snap_on",
+      "name": "james ingram",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The display name 'james ingram' is a personal name, combined with casual personal tweets like 'surfin the net' and 'doing my home work', low follower count (3), no bio, and lack of verification indicate this is an individual person's account rather than an official brand.",
+      "mismatch": true
+    },
+    {
+      "username": "rtx",
+      "name": "rtx",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile has a casual username and display name with no bio, low followers (38), and no verification, which is atypical for brands. The sample tweet describes personal graphic design work on a PC, indicating an individual content creator rather than a company account.",
+      "mismatch": true
+    },
+    {
+      "username": "alaska_airlines",
+      "name": "Katherine Stone",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile has a personal display name (Katherine Stone), a bio describing an 18-year-old individual's life and moving plans, and tweets focused on personal matters like job frustrations, house sale, and family relocation, clearly indicating an individual creator rather than a brand account despite the misleading username.",
+      "mismatch": true
+    },
+    {
+      "username": "xpo",
+      "name": "xp",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile lacks a bio, has low followers (178), and is unverified, with tweets consisting of personal opinions and questions about sports events (cycling, biathlon, rugby) without any promotion, affiliation, or organizational content typical of brands.",
+      "mismatch": true
+    },
+    {
+      "username": "jbhunt",
+      "name": "Minh Chau",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The display name 'Minh Chau' is a personal name, the account has only 1 follower, no verification, and no bio indicating a company or organization. The sample tweet solicits personal emails for ideas, consistent with an individual creator rather than a brand account, despite the username @jbhunt potentially referencing a company.",
+      "mismatch": true
+    },
+    {
+      "username": "gork",
+      "name": "gork",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile features casual, slang-heavy bio ('just gorkin' it') and tweets with personal pronouns ('me', 'i'm', 'my') full of irreverent humor and memes, typical of an individual creator or shitposter. No official branding, promotions, or organizational tone present, aligning with personal influencer accounts rather than companies.",
+      "mismatch": true
+    },
+    {
+      "username": "Chipotle",
+      "name": "Chip Clark",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile uses a personal display name 'Chip Clark', a casual Simpsons quote in the bio, has a low follower count (1,137) and no verification, and features humorous first-person tweets that jokingly reference Chipotle products, indicating it's an individual creator or parody account rather than an official brand.",
+      "mismatch": true
+    },
+    {
+      "username": "HERMES",
+      "name": "Hermes Trismegistus",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The username @HERMES and display name Hermes Trismegistus refer to a historical or mythical individual, with no bio, no verification, and a casual sample tweet 'Ha!', indicating a personal creator or role-playing account rather than a company or organization.",
+      "mismatch": true
+    },
+    {
+      "username": "sjm",
+      "name": "Steve Munroe",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile uses a personal name 'Steve Munroe' as the display name and username @sjm, with a bio explicitly stating tweets are personal and not affiliated with any corporation, indicating an individual account rather than a brand or organization.",
+      "mismatch": true
+    },
+    {
+      "username": "Skechers",
+      "name": "Skechers",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The username and display name match the Skechers brand, but the profile has only 536 followers, no verification, no bio, and sample tweets are casual and personal (e.g., '2016 Woof!!!' and dog vs. cat poll), indicating it's not an official company account but rather an individual or fan account.",
+      "mismatch": true
+    },
+    {
+      "username": "kelloggs",
+      "name": "Daniel",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The display name 'Daniel' is personal, there is no bio, low follower count (57), no verification, and tweets are casual and personal (e.g., 'I am playing some basketball!!' and promoting glasses informally), indicating an individual user rather than an official brand account.",
+      "mismatch": true
+    },
+    {
+      "username": "pvh",
+      "name": "Peter van Hardenberg",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile uses a personal name for both username (@pvh) and display name (Peter van Hardenberg), with a bio describing individual roles (Ink & Switch lab director, Heroku alum) and personal social links. Tweets are written in first person, promoting company events personally, aligning with guidelines for personal founder accounts as CREATORs.",
+      "mismatch": true
+    },
+    {
+      "username": "paramount",
+      "name": "paramount",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile has a casual bio ('cool beans'), no verification, modest follower count, and sample tweets are highly personal, using first-person language to share emotions, opinions on music/sports/animals, and casual swearing—indicative of an individual rather than a professional brand account.",
+      "mismatch": true
+    },
+    {
+      "username": "ConAgra",
+      "name": "ConAgra-Not Official",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile explicitly states in its display name 'ConAgra-Not Official' and bio that the official account is @ConAgraFoods, directing users there; all tweets reinforce this by promoting the official brand account, indicating this is not an official company/organization account but likely run by an individual.",
+      "mismatch": true
+    },
+    {
+      "username": "ross",
+      "name": "Ross Mayfield",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile features a personal name (Ross Mayfield), username @ross, and a bio indicating a professional role at Zoom with a disclaimer that 'Opinions and parodies are my own,' which is typical for individual accounts. Tweets express personal excitement about work and include non-work topics like politics, aligning with a creator rather than an official brand account.",
+      "mismatch": true
+    },
+    {
+      "username": "tjx",
+      "name": "TJ Sassani",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile belongs to TJ Sassani, explicitly identified as Founder/CEO of @zozi in the bio, with personal interests listed, and tweets reflect individual opinions, promotions, and industry commentary rather than official company messaging. Per guidelines, personal accounts of founders/CEOs are classified as CREATOR even when discussing their company.",
+      "mismatch": true
+    },
+    {
+      "username": "aep",
+      "name": "Saepudin",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile features a personal name 'Saepudin' in the display name, a philosophical personal bio in Indonesian, low follower count, no verification, and casual, individual tweets like greetings, exclamations, and slang, indicating an individual person's account rather than a brand or organization.",
+      "mismatch": true
+    },
+    {
+      "username": "caterpillar",
+      "name": "良葛格",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile showcases personal coding projects like dotSCAD releases, generative art, and OpenSCAD models, with a creative bio emphasizing code as a form of construction. The Chinese display name, lack of verification, and non-corporate username further indicate an individual creator rather than a brand.",
+      "mismatch": true
+    },
+    {
+      "username": "ge",
+      "name": "Geraldine",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The display name 'Geraldine' is a personal name, and the tweets show casual personal activities like sharing a Wordle score, reacting to videos, and complaining about an app registration issue as a user, with no indications of company promotion or official branding.",
+      "mismatch": true
+    },
+    {
+      "username": "emerson",
+      "name": "Emerson Segura",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile has a personal name (Emerson Segura) as display name and username @emerson, with a bio listing individual professional titles (CTO, ML, Research). Tweets use casual, personal language about personal robot experiences (e.g., 'Clanker has a booboo'), consistent with an individual creator in robotics rather than an official brand account.",
+      "mismatch": true
+    },
+    {
+      "username": "lumen",
+      "name": "Lumen Sivitz",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile features a personal name (Lumen Sivitz) in both username and display name, with a bio highlighting individual professional experience as a recruiting coach and founder of companies, which aligns with a personal creator account. Sample tweets express personal opinions on sports, economics, and UI design rather than promoting a brand or organization.",
+      "mismatch": true
+    },
+    {
+      "username": "MMM",
+      "name": "Mohamed Marwen Meddah",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The display name is a personal name (Mohamed Marwen Meddah), and the bio describes individual identity, profession, and hobbies like photography and woodworking. Sample tweets share personal anecdotes about a cat, browser tabs, birthdays, and opinions on COVID, with no company or brand promotion.",
+      "mismatch": true
+    },
+    {
+      "username": "Stanley_Black",
+      "name": "Joshua Lawson",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The display name 'Joshua Lawson' indicates an individual person, and the tweets are personal shares of music creations, news articles, and downloads, with no branding, promotion, or organizational content. Low followers and lack of verification further support it being a personal creator account.",
+      "mismatch": true
+    },
+    {
+      "username": "diamondback",
+      "name": "diamondback",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile has no bio, low followers, no verification, and sample tweets are casual and nonsensical ('hello', 'yyeah'), indicating a personal individual account rather than a professional brand or organization. There are no indicators of company affiliation, products, or official branding.",
+      "mismatch": true
+    },
+    {
+      "username": "eaton",
+      "name": "Actually,",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The bio describes personal roles like 'justice advocate,' 'co-founder,' 'co-host,' and 'partner,' indicating an individual person rather than a company. Sample tweets are personal reflections on internet history and connections, consistent with a creator's personal account.",
+      "mismatch": true
+    },
+    {
+      "username": "otis",
+      "name": "Otis",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The bio highlights personal roles (father, husband) and individual interests (sports lover, trail runner, PB&J fan, #gobeavs), while sample tweets are casual, enthusiastic sports commentary without any promotion or official representation, clearly indicating a personal individual account.",
+      "mismatch": true
+    },
+    {
+      "username": "duke_energy",
+      "name": "ro duke",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The username @duke_energy mimics a brand (Duke Energy), but the low follower count (32), lack of verification, absent bio, casual display name 'ro duke', and informal tweet 'not a damn thing' strongly indicate a personal individual account rather than an official company profile.",
+      "mismatch": true
+    },
+    {
+      "username": "msg",
+      "name": "michael s galpert",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile uses a personal name (michael s galpert) as the display name, a first-person bio describing running a product studio and past work, and tweets are casual personal opinions and experiences, indicating an individual creator/founder rather than a brand account.",
+      "mismatch": true
+    },
+    {
+      "username": "TravelLeisure",
+      "name": "Travel + Leisure",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "Travel + Leisure is a well-known media outlet and magazine, with the account verified as a business, using editorial 'we' language, and promoting content like deals and recommendations typical of an official publication account.",
+      "mismatch": true
+    },
+    {
+      "username": "tasteofhome",
+      "name": "Taste of Home",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The bio explicitly describes it as 'America’s No.1 food lifestyle brand,' and the username/display name match the well-known Taste of Home magazine/media outlet. Tweets promote recipes and link to content consistent with a company/organization account, not an individual.",
+      "mismatch": true
+    },
+    {
+      "username": "thekitchn",
+      "name": "The Kitchn",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile @thekitchn belongs to The Kitchn, a media outlet and food website that shares recipes, product recommendations, and cooking tips under a brand name. The bio positions it as a resource for home cooks (not a personal account, restaurant, or TV show), and tweets promote content typical of a company/media brand rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "Allrecipes",
+      "name": "Allrecipes",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The username and display name 'Allrecipes' match a well-known recipe website/company, verified as 'business' type with over 1.8M followers. Sample tweets are promotional about food products and recipes, typical of a brand/media outlet, not an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "NatGeoTravel",
+      "name": "Nat Geo Travel",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "@NatGeoTravel is the official account for National Geographic Travel, a media organization, as evidenced by its business verification, promotional content for Nat Geo guides and Disney+ shows, and organizational bio using 'us' and 'our team'.",
+      "mismatch": true
+    },
+    {
+      "username": "HarperCollins",
+      "name": "HarperCollins",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is for HarperCollins, a major publishing company, as indicated by the username, display name, bio referencing its 1817 founding, and tweets promoting company publications, facilities, awards, and events.",
+      "mismatch": true
+    },
+    {
+      "username": "Migos",
+      "name": "MIGOS™",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is the official account for the hip-hop group Migos, indicated by the trademarked display name MIGOS™, group booking email, and tweets promoting collective albums (#Culture3), Q&As, and hologram shows using 'us' and 'we', functioning as an organizational brand account akin to a sports team rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "NASA",
+      "name": "NASA",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is the official account for NASA, a government organization, as stated in the bio and confirmed by government verification. Tweets discuss organizational activities, achievements, and events from NASA's perspective, aligning with BRAND classification for organizations.",
+      "mismatch": true
+    },
+    {
+      "username": "epicurious",
+      "name": "epicurious",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile matches the well-known food media brand Epicurious, with a business verification type, username and display name identical to the brand, and tweets promoting recipes and guides consistent with the brand's content.",
+      "mismatch": true
+    },
+    {
+      "username": "PopSci",
+      "name": "Popular Science",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "@PopSci is the official account for Popular Science, a well-known media outlet and magazine focused on science, tech, and DIY content. The bio references 'our YouTube channel' and tweets promote articles typical of an organizational media brand, not an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "SpaceX",
+      "name": "SpaceX",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile @SpaceX has a company name as username and display name, a bio describing corporate activities, business verification, and tweets focused on official SpaceX launches and products, indicating it's the official company account rather than an individual.",
+      "mismatch": true
+    },
+    {
+      "username": "BookRiot",
+      "name": "Book Riot",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile represents Book Riot, described in the bio as the largest independent literary site in North America, which is a media outlet and organization. Sample tweets promote site content like book deals and recommendations in a collective voice, consistent with a brand account rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "highsnobiety",
+      "name": "highsnobiety",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "Highsnobiety is a well-known fashion media outlet and publication, as evidenced by its collective bio 'WE ARE WHAT'S NEXT.', editorial-style tweets promoting articles on brands like Nike and New Balance, and lack of any personal identifiers. The profile matches the criteria for media companies as BRANDs.",
+      "mismatch": true
+    },
+    {
+      "username": "penguinrandom",
+      "name": "Penguin Random House 🐧🏠📚",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile belongs to Penguin Random House, a major publishing company, as indicated by the display name, username, and bio focused on books. Tweets promote book bundles, bestsellers, and partnerships like MIT Press, consistent with an official company account rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "HachetteUS",
+      "name": "Hachette Book Group",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The username @HachetteUS and display name Hachette Book Group clearly identify it as the official account of a major publishing company. Tweets promote books, authors, and related news from their imprints, aligning with brand behavior for an organization.",
+      "mismatch": true
+    },
+    {
+      "username": "ExtinctionR",
+      "name": "Extinction Rebellion Global",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile represents 'Extinction Rebellion Global', explicitly described in the bio as a global non-violent direct action movement/organization, with tweets focused on collective activism and references to branches like @XRItaly. It matches the BRAND classification for organizations, not an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "FoodNetwork",
+      "name": "Food Network",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "@FoodNetwork is the official account for Food Network, a major TV channel and media outlet, evidenced by its business verification, massive follower count, bio promoting TV schedules, and tweets focused on show promotions, competitions, and recipes from their programming.",
+      "mismatch": true
+    },
+    {
+      "username": "WWF",
+      "name": "WWF",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "@WWF is the official account of the World Wildlife Fund, a major international conservation organization, evidenced by its business verification, organizational bio focused on harmony with nature, massive follower count, and tweets promoting environmental causes like forests, wildlife, and climate action.",
+      "mismatch": true
+    },
+    {
+      "username": "CollegeHumor",
+      "name": "CollegeHumor",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "@CollegeHumor is the official account for CollegeHumor, a media company and comedy brand producing videos and shows, as evidenced by promotional tweets for episodes like Dirty Laundry and references to 'we' as a team working on content. It matches BRAND criteria for media outlets and organizations, not an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "adafruit",
+      "name": "adafruit industries",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile represents Adafruit Industries, a manufacturer of open-source hardware, with a display name and bio explicitly describing it as a business enterprise. Tweets promote products, sales, and company content, confirming it as an official company account managed by individuals but not a personal profile.",
+      "mismatch": true
+    },
+    {
+      "username": "SciShow",
+      "name": "SciShow",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is for SciShow, a media brand/organization producing science videos, as indicated by the bio mentioning 'Hank Green & team' and multiple affiliated channels, along with tweets focused on brand support, postcards, and content production rather than personal activities.",
+      "mismatch": true
+    },
+    {
+      "username": "odesza",
+      "name": "ODESZA",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile @odesza represents ODESZA, an electronic music duo, with promotional tweets announcing DJ sets, events, music releases, and pre-orders in third person, typical of an official band/organization account. The bio 'H + C' refers to the members Harrison Mills and Clayton Knight, but the account functions as the brand for the music act rather than a personal individual profile.",
+      "mismatch": true
+    },
+    {
+      "username": "ScaryMommy",
+      "name": "Scary Mommy",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The account is verified as a business, has a high follower count, and posts promotional content like Amazon deals with links, consistent with a media outlet or company. The bio references a Scary Mommy Book Club sub-account, indicating it's an organizational brand rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "goodreads",
+      "name": "Goodreads",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is for Goodreads, a company and website for book recommendations and tracking, as evident from the username, display name, bio promoting its services, and tweets engaging the community with book promotions, awards, and adaptations typical of an official brand account.",
+      "mismatch": true
+    },
+    {
+      "username": "Scholastic",
+      "name": "Scholastic",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile belongs to Scholastic, a company described in the bio as the world's largest publisher and distributor of children's books. Sample tweets promote the company's books, authors, and products, consistent with an official brand account.",
+      "mismatch": true
+    },
+    {
+      "username": "IFLScience",
+      "name": "IFLScience",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "@IFLScience is a well-known science media outlet and website (IFLScience.com) that shares entertaining science content, matching the profile for a brand/media organization rather than an individual creator. The username, display name, bio, and sample tweets all promote articles from their platform without personal branding.",
+      "mismatch": true
+    },
+    {
+      "username": "smosh",
+      "name": "Smosh",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile uses the brand name 'Smosh' for both username and display name, with a bio promoting support for 'Smosh' as an independent entity. Sample tweets promote collective content like roasts, memberships, and watch parties, characteristic of a media company or organization account rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "ClimateReality",
+      "name": "Climate Reality",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile represents the Climate Reality organization, founded by Al Gore, using 'we' in the bio and posting content from an organizational advocacy perspective rather than a personal one. It matches the BRAND classification for organizations.",
+      "mismatch": true
+    },
+    {
+      "username": "EcoWatch",
+      "name": "EcoWatch",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile @EcoWatch presents itself as an environmental news outlet through its bio 'Environmental News for a Healthier Planet and Life' and sample tweets sharing news articles on topics like climate, wildlife, and policy. News organizations and media companies are explicitly classified as BRANDS per the guidelines.",
+      "mismatch": true
+    },
+    {
+      "username": "sparkfun",
+      "name": "SparkFun Electronics",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile belongs to SparkFun Electronics, a company, as indicated by the display name and username. Tweets focus on product releases, sales promotions, and company matters using 'we' to represent the organization, aligning with brand characteristics.",
+      "mismatch": true
+    },
+    {
+      "username": "HYPEBEAST",
+      "name": "HYPEBEAST",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "HYPEBEAST is a well-known media company and brand focused on culture, fashion, and streetwear, with a business verification, promotional bio linking to their shop, and content style typical of an official media outlet rather than an individual.",
+      "mismatch": true
+    },
+    {
+      "username": "NatGeo",
+      "name": "National Geographic",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "@NatGeo is the official account for National Geographic, a well-known media organization and brand, as indicated by the username, display name, business verification, and content focused on sharing Nat Geo's photography, articles, and explorations.",
+      "mismatch": true
+    },
+    {
+      "username": "ScienceAlert",
+      "name": "ScienceAlert",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The bio explicitly states 'Official Twitter for' a website (likely sciencealert.com), and the account shares science news content typical of a media outlet or organization. Sample tweets promote articles and tag institutions, aligning with brand/media characteristics rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "Complex",
+      "name": "Complex",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "@Complex is a well-known media outlet and company focused on pop culture, as indicated by its business verification, generic branding (username and display name both 'Complex'), slogan-like bio 'Making Culture Pop.', and content style (threads, promotions, congratulations to artists) typical of organizational accounts rather than individuals.",
+      "mismatch": true
+    },
+    {
+      "username": "NRDC",
+      "name": "NRDC 🌎🏡",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile explicitly identifies as NRDC (Natural Resources Defense Council), an environmental organization, in the username, display name, and bio. Sample tweets use 'our' to refer to the organization's counsel, podcast, and activities, confirming it is an official brand/organization account rather than an individual.",
+      "mismatch": true
+    },
+    {
+      "username": "simonschuster",
+      "name": "Simon & Schuster",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile explicitly states it is Simon & Schuster's official Twitter account, with a business verification, company-branded username and display name, and tweets promoting the publisher's books, authors, and initiatives, aligning with a company/organization account.",
+      "mismatch": true
+    },
+    {
+      "username": "Greenpeace",
+      "name": "Greenpeace International",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is for Greenpeace International, an environmental organization, with a username @Greenpeace, bio describing the organization's mission, business verification, and tweets promoting collective campaigns and actions, clearly indicating an official organizational account rather than an individual.",
+      "mismatch": true
+    },
+    {
+      "username": "ElectricLit",
+      "name": "Electric Literature",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is for Electric Literature, a literary media outlet/organization, as shown by the display name, username, and tweets using 'we' to promote publications, memberships, newsletters, and editorial decisions. Media outlets are explicitly classified as BRANDs.",
+      "mismatch": true
+    },
+    {
+      "username": "funnyordie",
+      "name": "Funny Or Die",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile represents Funny Or Die, a well-known comedy media company and production outlet, with a business verification, 'We' in the bio indicating an organization, and tweets promoting collective video content rather than personal experiences.",
+      "mismatch": true
+    },
+    {
+      "username": "SierraClub",
+      "name": "Sierra Club",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile @SierraClub represents the Sierra Club, a well-known environmental organization, with a bio focused on its mission and tweets promoting organizational advocacy, programs, and staff. This matches the BRAND classification for organizations.",
+      "mismatch": true
+    },
+    {
+      "username": "YesTheory",
+      "name": "Yes Theory",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile uses 'We' in the bio to describe video production as a group, promotes their own merch line 'Seek Discomfort', and the username/display name match the brand 'Yes Theory' rather than an individual person. Sample tweets focus on collective adventures, wisdom-sharing, and product promotions, aligning with a company/organization account.",
       "mismatch": true
     },
     {
@@ -19,16 +667,43 @@
       "currentType": "brand",
       "suggestedType": "creator",
       "confidence": "high",
-      "reasoning": "The profile uses a personal display name 'Sofía Figueroa' and a bio that reflects individual values, while the sample tweets express personal opinions and experiences, such as complaints about local issues, which align with a creator account rather than a brand.",
+      "reasoning": "The profile features a personal display name (Sofía Figueroa), a motivational personal bio, and tweets about everyday personal experiences like birthdays, local park complaints, and noise issues, tagging individuals and local figures, with no indication of representing a company or organization.",
       "mismatch": true
     },
     {
-      "username": "stvnzhn",
-      "name": "Steven Zhang",
+      "username": "DeItaone",
+      "name": "*Walter Bloomberg",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile posts financial news headlines impersonally like a media outlet, and the bio offers promotional services for firms, indicating a business/organization account rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "LinusTech",
+      "name": "Linus Tech Tips",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The bio explicitly states it is the 'official Twitter of the Linus Tech Tips YouTube channel,' indicating it represents a media outlet/organization rather than an individual. Tweets promote videos, sponsorships, and brand interactions consistent with a company account.",
+      "mismatch": true
+    },
+    {
+      "username": "pentel",
+      "name": "Hiroshi Yoshimura",
       "currentType": "brand",
       "suggestedType": "creator",
       "confidence": "high",
-      "reasoning": "The profile uses a personal name, Steven Zhang, and the bio describes individual activities like making apps and videos, while the tweets are personal and conversational, indicating it's an individual creator rather than a brand account.",
+      "reasoning": "The profile features a personal name as display name, a bio describing individual hobbies and lifestyle (IT engineer, scuba diver, nomad in Thailand), and casual personal tweets about tech gadgets, currency, and interests, with no company or brand promotion.",
+      "mismatch": true
+    },
+    {
+      "username": "WritersDigest",
+      "name": "Writer's Digest",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is for Writer's Digest, a long-established publication and media brand since 1920, published by Active Interest Media, promoting its podcasts, university, conferences, and content. Sample tweets consistently promote official brand content like podcasts and articles, aligning with company/organization/media outlet characteristics.",
       "mismatch": true
     },
     {
@@ -37,70 +712,367 @@
       "currentType": "brand",
       "suggestedType": "creator",
       "confidence": "high",
-      "reasoning": "The profile bio describes the account as a chocolate Labrador retriever, and the tweets feature personal, humorous stories about its life and experiences, which align with a creator account rather than a brand.",
+      "reasoning": "The bio identifies as a chocolate Labrador retriever, and tweets are written from the dog's first-person perspective about personal events like birthdays and daily activities, while explicitly distinguishing itself from the official @datadoghq company account. This is a personal pet account functioning as an individual creator or influencer, not an official brand.",
       "mismatch": true
     },
     {
-      "username": "Mindpump",
-      "name": "Mind Pump Media",
-      "currentType": "creator",
-      "suggestedType": "brand",
-      "confidence": "high",
-      "reasoning": "The profile is named 'Mind Pump Media' and features promotional content, services, and a bio emphasizing media achievements like 1B+ downloads, indicating it is an official company or media outlet account rather than an individual's personal profile.",
-      "mismatch": true
-    },
-    {
-      "username": "naborforce",
-      "name": "Naborforce",
-      "currentType": "creator",
-      "suggestedType": "brand",
-      "confidence": "high",
-      "reasoning": "The profile and bio describe Naborforce as a company providing services for aging and companionship, with tweets focusing on promotions, sponsorships, and expansions, indicating an official organizational account rather than an individual's personal one.",
-      "mismatch": true
-    },
-    {
-      "username": "emm4x3",
-      "name": "Emma",
+      "username": "sherwin",
+      "name": "Sherwin Huang",
       "currentType": "brand",
       "suggestedType": "creator",
       "confidence": "high",
-      "reasoning": "The profile uses a personal name 'Emma' and bio that highlights individual experiences as a CS student and hackathon organizer, while tweets focus on personal activities like daily life and travels, indicating an individual creator account rather than a brand.",
+      "reasoning": "The profile uses a personal name (Sherwin Huang) as display name and username, with a bio highlighting personal interests and a job role at @studiosity, but tweets are casual and personal (e.g., cooking mishaps, pandemic thoughts, personal travel feelings), indicating an individual rather than an official brand account. Personal accounts of company leaders are classified as creators per guidelines.",
       "mismatch": true
     },
     {
-      "username": "ChefSteps",
-      "name": "ChefSteps",
+      "username": "ArcticMonkeys",
+      "name": "Arctic Monkeys",
       "currentType": "creator",
       "suggestedType": "brand",
       "confidence": "high",
-      "reasoning": "The profile's bio uses 'we' to describe a group of food professionals and promotes content via a website, indicating an organizational account rather than an individual. The sample tweets focus on educational and promotional content about cooking, which is typical for a brand or company.",
+      "reasoning": "The profile @ArcticMonkeys represents the official account for the band Arctic Monkeys, an organization/group, with bio and tweets focused on band announcements, album promotions, tours, and merchandise, aligning with BRAND classification similar to sports teams or media outlets.",
       "mismatch": true
     },
     {
-      "username": "bonappetit",
-      "name": "Bon Appétit",
+      "username": "ITZYofficial",
+      "name": "ITZY",
       "currentType": "creator",
       "suggestedType": "brand",
       "confidence": "high",
-      "reasoning": "The profile belongs to Bon Appétit, a well-known food media outlet, with a bio focused on recipes and culture, and it's verified as a business account, indicating it's an official organization. The sample tweets promote content in a professional, third-person style typical of brand accounts, not individuals.",
+      "reasoning": "The username @ITZYofficial and business verification indicate this is the official account for the K-pop group ITZY, functioning as a brand or organization account. Tweets promote group music, albums, and collaborations, without personal individual content.",
       "mismatch": true
     },
     {
-      "username": "oura",
-      "name": "Daouna Jeong",
+      "username": "jonasbrothers",
+      "name": "Jonas Brothers",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile represents the Jonas Brothers as a music group with a business verification, username and display name matching the band name, and tweets focused on promotional content like merch, music releases, and tours, characteristic of an official brand/organization account rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "the1975",
+      "name": "The 1975",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile @the1975 represents the official account for the band The 1975, an organization, with a display name matching the band, promotional bio for their album, and tweets in third person promoting releases, tours, and merchandise via their label's store, aligning with brand characteristics rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "Imaginedragons",
+      "name": "Imagine Dragons",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "This is the official Twitter account for the band Imagine Dragons, promoting their music, tours, merch, and events from the band's perspective (e.g., 'our official store', 'we felt it'), aligning with company/organization accounts rather than an individual musician's personal account.",
+      "mismatch": true
+    },
+    {
+      "username": "BLACKPINK",
+      "name": "BLACKPINKOFFICIAL",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The display name includes 'OFFICIAL', the bio is stylized as the group name BLΛƆKPIИK, and tweets promote BLACKPINK's world tour, music releases, and features in third person with #YG tags, confirming this is the official brand account for the K-pop group managed by their label, not an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "Stryker",
+      "name": "Stryker",
       "currentType": "brand",
       "suggestedType": "creator",
       "confidence": "high",
-      "reasoning": "The profile belongs to an individual named Daouna Jeong, with a bio that describes her personal background and professional roles in first-person terms, and tweets that share personal recommendations and insights, indicating it's a creator account rather than a brand.",
+      "reasoning": "The profile lacks a bio, has low followers (161), no verification, and features casual, first-person tweets like 'I wonder how this is gonna go…' and 'Hmm', which are typical of an individual person rather than a company or organization account.",
       "mismatch": true
     },
     {
-      "username": "TheEllenShow",
-      "name": "The Ellen Show",
+      "username": "falloutboy",
+      "name": "Fall Out Boy",
       "currentType": "creator",
       "suggestedType": "brand",
       "confidence": "high",
-      "reasoning": "The profile is for 'The Ellen Show', which is an official account for a TV program and media outlet, fitting the brand category as it promotes the show and its content rather than being a personal account. The bio explicitly states it as the home for the show, confirming it's an organizational entity.",
+      "reasoning": "The profile @falloutboy represents Fall Out Boy, a music band operating as an organization with promotional tweets for merch, albums, and events from the band's collective perspective, similar to sports teams or media outlets classified as BRANDs. It is not an individual person's account but the official band account.",
+      "mismatch": true
+    },
+    {
+      "username": "U2",
+      "name": "U2",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The @U2 account represents the official profile for the band U2, an organization/group similar to sports teams or media outlets classified as BRANDs. Tweets use collective 'we' language, promote band albums/performances, and align with organizational promotion rather than an individual's personal content.",
+      "mismatch": true
+    },
+    {
+      "username": "zacbrownband",
+      "name": "Zac Brown Band",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is for 'Zac Brown Band,' a music group, with a business verification, username and display name matching the band, and content promoting the band's shows, albums, and music as a collective using 'we.' This aligns with BRAND classification for organizations like bands, similar to sports teams.",
+      "mismatch": true
+    },
+    {
+      "username": "mintlify",
+      "name": "Mintlify",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is for Mintlify, a company providing an intelligent documentation platform, evidenced by the business verification, product-focused bio, and tweets promoting features and updates using 'we' for the company.",
+      "mismatch": true
+    },
+    {
+      "username": "linkinpark",
+      "name": "LINKIN PARK",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "This is the official account for the band Linkin Park, an organization, evidenced by business verification, massive followers, and tweets promoting tours, merchandise, fan club presales, and albums in a corporate style rather than personal content.",
+      "mismatch": true
+    },
+    {
+      "username": "TheRealStanLee",
+      "name": "Stan Lee",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The bio describes it as an official account honoring Stan Lee's legacy, powered by Stan Lee Universe and Kartoon Studios (a publicly traded company, NYSE: TOON). Sample tweets promote company projects, art shows, and use corporate hashtags, indicating it's managed by organizations rather than an individual.",
+      "mismatch": true
+    },
+    {
+      "username": "markel",
+      "name": "Marcello Farias",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile features a personal display name 'Marcello Farias' and a casual bio 'Geek 5.0', indicating an individual. Tweets share tech events, articles, and promotions in a personal enthusiast style, without official company representation.",
+      "mismatch": true
+    },
+    {
+      "username": "BTS_twt",
+      "name": "방탄소년단",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile @BTS_twt is the official account for the K-pop group BTS (Bangtan Sonyeondan), with a collective bio 'We are BTS !', group name as display name, and tweets posted on behalf of the group, similar to how sports teams or organizations are classified as BRANDs rather than individual creators.",
+      "mismatch": true
+    },
+    {
+      "username": "Metallica",
+      "name": "Metallica",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile @Metallica represents the official account for the band Metallica, an organization, with a business verification type, massive followers, and tweets promoting tours, giveaways, and band-related content from a collective 'we' perspective rather than an individual.",
+      "mismatch": true
+    },
+    {
+      "username": "OldDominion",
+      "name": "Old Dominion",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile belongs to the country music band Old Dominion, with username and display name matching the band, bio promoting their album, and tweets discussing collective band activities like tours, shows, and new music using 'us' and 'our'. This functions as an official organization/brand account for the group, akin to sports teams or media outlets, rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "JNJ",
+      "name": "JNJ 🎗️",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The bio uses first-person language ('I automatically block') and explicitly distinguishes itself from the company Johnson & Johnson, indicating a personal account. Sample tweets are all personal actions ('Ich habe soeben die Petition unterschrieben' - 'I just signed the petition'), sharing activism efforts, which aligns with an individual creator rather than a brand or organization.",
+      "mismatch": true
+    },
+    {
+      "username": "twentyonepilots",
+      "name": "twenty one pilots",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is the official account for the band Twenty One Pilots, with username and display name matching the band, bio tagging the members, and tweets promoting group tours, performances, and music from the band's perspective, akin to an organization or team account.",
+      "mismatch": true
+    },
+    {
+      "username": "coldplay",
+      "name": "Coldplay",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is explicitly described in the bio as 'The official profile of the band Coldplay,' with a business verification type, indicating it represents the band as an organization rather than an individual. Tweets promote band activities, tours, and charity events collectively, aligning with BRAND characteristics for groups like music bands.",
+      "mismatch": true
+    },
+    {
+      "username": "blink182",
+      "name": "blink-182",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "This is the official account for the band blink-182, with a display name matching the band, bio promoting their album, and tweets focused on band tours, festivals, and merchandise, characteristic of a brand/organization rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "RVsmtown",
+      "name": "Red Velvet",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "This is the official Twitter account for the K-pop group Red Velvet under SM Entertainment, as indicated by the username @RVsmtown, business verification, massive follower count, and promotional tweets about group members' activities, albums, and shows using consistent group hashtags.",
+      "mismatch": true
+    },
+    {
+      "username": "FifthHarmony",
+      "name": "Fifth Harmony",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "@FifthHarmony is the official account for the music group Fifth Harmony, posting as 'we' about group activities, stage performances, merch sales, and tagging individual members, functioning like an organizational brand account rather than a personal one.",
+      "mismatch": true
+    },
+    {
+      "username": "PanicAtTheDisco",
+      "name": "Panic! At The Disco",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "This is the official account for the band Panic! At The Disco, an organization promoting album releases, live performances, and merchandise, confirmed by business verification and content focused on band activities rather than an individual.",
+      "mismatch": true
+    },
+    {
+      "username": "WTFpod",
+      "name": "WTF with Marc Maron",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is the official account for the 'WTF with Marc Maron' podcast, with a username @WTFpod, display name matching the show, and bio/tweets focused on promoting episodes, archives, and listening links, managed by a team (Marc, Brendan, Walter). This fits as an official media product/service account rather than an individual creator's personal profile.",
+      "mismatch": true
+    },
+    {
+      "username": "YMHstudios",
+      "name": "YMH Studios",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile belongs to YMH Studios, explicitly described in the bio as an Austin-based comedy podcast, TV, and film studio founded by comedians Tom Segura and Christina P., with username and display name matching the studio. Sample tweets promote studio-specific content like #YMH podcasts and #2Bears1Cave, confirming it is an official company/organization account rather than a personal one.",
+      "mismatch": true
+    },
+    {
+      "username": "Abbott",
+      "name": "Bruce Abbott",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The username @Abbott and display name Bruce Abbott, along with a bio listing personal roles like Software Designer, Product Builder, and Entrepreneur (ex-Disney), indicate an individual profile. Tweets share personal opinions on AI, data tech, and fundraising for a startup with a co-founder, aligning with guidelines classifying personal founder accounts as CREATORS.",
+      "mismatch": true
+    },
+    {
+      "username": "slipknot",
+      "name": "Slipknot",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "This is the official Slipknot band account, verified as a business, with a bio promoting their album reissue and tweets focused on merchandise, band history, and member birthdays, aligning with an organizational brand rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "vertex",
+      "name": "Bryon",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile features a personal display name 'Bryon', a bio highlighting individual expertise and interests like being a 'Javascript nerd' and Tesla fan, and sample tweets about personal vacations in Thailand, opinions on public figures, and life milestones, clearly indicating an individual creator rather than a brand or organization.",
+      "mismatch": true
+    },
+    {
+      "username": "bts_bighit",
+      "name": "BTS_official",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is explicitly the 'Official X for #BTS' as stated in the bio, with username @bts_bighit and display name BTS_official, posting official promotions for BTS members' projects, tours, movies, and merchandise. This aligns with a brand/organization account for the K-pop group rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "GreenDay",
+      "name": "Green Day",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "@GreenDay is the official account for the band Green Day, functioning as an organizational brand account promoting music, merch, and collaborations, similar to sports teams or media outlets. The 'business' verified type and promotional content confirm it is not an individual creator's personal account.",
+      "mismatch": true
+    },
+    {
+      "username": "onedirection",
+      "name": "One Direction",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile @onedirection represents the official account for the music group One Direction, promoting group music, playlists, and events collectively, similar to an organization or brand account rather than an individual creator. It uses group pronouns like 'us' and focuses on band milestones without referencing a single person.",
+      "mismatch": true
+    },
+    {
+      "username": "Stray_Kids",
+      "name": "Stray Kids",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The profile is the official Twitter for Stray Kids, a K-pop group, indicated by the bio 'Stray Kids(스트레이 키즈) Official Twitter', business verification, and promotional tweets for group performances, music videos, and content. This aligns with BRAND as an official organization account rather than an individual creator.",
+      "mismatch": true
+    },
+    {
+      "username": "weverseofficial",
+      "name": "Weverse",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The username @weverseofficial, display name Weverse, bio referencing Weverse Company Inc., business verification, and promotional tweets for their platform (Weverse LIVE, Weverse Shop) and events clearly indicate this is an official company/organization account.",
+      "mismatch": true
+    },
+    {
+      "username": "Moderna",
+      "name": "Moderna",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The tweets use personal first-person language such as 'my account was hacked' and 'my new track,' describing a music release and personal experiences, which aligns with an individual musician or content creator rather than a company or organization.",
+      "mismatch": true
+    },
+    {
+      "username": "TheDailyShow",
+      "name": "The Daily Show",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "@TheDailyShow is the official account for The Daily Show, a Comedy Central TV program, promoting episodes, hosts like Jon Stewart and correspondents, and streaming on Paramount Plus. It matches the BRAND classification as a media outlet with business verification and no indication of being a personal account.",
+      "mismatch": true
+    },
+    {
+      "username": "LastWeekTonight",
+      "name": "Last Week Tonight",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "This is the official Twitter account for the TV show 'Last Week Tonight with John Oliver,' a media outlet/program produced by HBO, as evidenced by the username, display name, bio promoting the show on HBO, business verification, and tweets promoting episodes and YouTube content using 'we' to represent the show/team.",
+      "mismatch": true
+    },
+    {
+      "username": "Lilly",
+      "name": "Lilly",
+      "currentType": "brand",
+      "suggestedType": "creator",
+      "confidence": "high",
+      "reasoning": "The profile uses a casual, personal bio ('having fun') and tweets reference personal elements like 'Team Lilly,' birthday campaigns, and individual philanthropy via Unicorn Island Fund, aligning with an influencer's personal account rather than a company or organization.",
+      "mismatch": true
+    },
+    {
+      "username": "ATEEZofficial",
+      "name": "ATEEZ(에이티즈)",
+      "currentType": "creator",
+      "suggestedType": "brand",
+      "confidence": "high",
+      "reasoning": "The bio explicitly states it is the official X account of ATEEZ, a group under KQ Entertainment, and the username includes 'official'. Tweets promote group activities, events, and awards using consistent group hashtags, aligning with a brand/organization account rather than an individual creator.",
       "mismatch": true
     }
   ]
