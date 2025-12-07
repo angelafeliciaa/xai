@@ -440,7 +440,7 @@ function MatchContent() {
                       </div>
 
                       {/* Score */}
-                      <div className={`px-4 py-2 rounded-xl bg-gradient-to-r border ${getScoreStyle(match.score)}`}>
+                      <div className={`px-4 py-2 rounded-xl bg-gradient-to-r border flex items-center ${getScoreStyle(match.score)}`}>
                         <span className="text-lg font-medium">{((match.score || 0) * 100).toFixed(0)}%</span>
                       </div>
 
@@ -448,7 +448,7 @@ function MatchContent() {
                       <button
                         onClick={(e) => handleExplainMatch(e, match)}
                         disabled={loadingExplanation === match.profile.username}
-                        className="px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-purple-500/5 border border-purple-500/20 text-purple-400 text-xs font-medium hover:from-purple-500/30 hover:to-purple-500/10 transition-all disabled:opacity-50 flex items-center gap-1.5"
+                        className="px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-purple-500/5 border border-purple-500/20 text-purple-400 text-xs font-medium hover:from-purple-500/30 hover:to-purple-500/10 transition-all disabled:opacity-50 flex items-center gap-1.5 h-[38px]"
                       >
                         {loadingExplanation === match.profile.username ? (
                           <div className="w-3 h-3 border-2 border-purple-400/30 border-t-purple-400 rounded-full animate-spin"></div>

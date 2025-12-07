@@ -37,15 +37,15 @@ type CardInstance = ProfileCard & {
 };
 
 const WORLD_BOUNDS = {
-  minX: -16,
-  maxX: 16,
-  minY: -4,
-  maxY: 8,
-  minZ: -40,
-  maxZ: 20,
+  minX: -20,
+  maxX: 20,
+  minY: -6,
+  maxY: 10,
+  minZ: -50,
+  maxZ: 40,
 };
 
-const INITIAL_CAMERA_POSITION = new THREE.Vector3(0, 2.5, 8);
+const INITIAL_CAMERA_POSITION = new THREE.Vector3(0, 2.5, 12);
 
 function FirstPersonControls({
   cards,
@@ -86,11 +86,11 @@ function FirstPersonControls({
       const dy = e.clientY - lastPointer.current.y;
       lastPointer.current = { x: e.clientX, y: e.clientY };
 
-      const lookSpeed = 0.003;
+      const lookSpeed = 0.005;
       yaw.current -= dx * lookSpeed;
       pitch.current -= dy * lookSpeed;
-      const maxPitch = Math.PI / 2 - 0.02;
-      pitch.current = THREE.MathUtils.clamp(pitch.current, -maxPitch, maxPitch);
+      // Very loose pitch clamp for smoother movement
+      pitch.current = THREE.MathUtils.clamp(pitch.current, -Math.PI / 2 + 0.01, Math.PI / 2 - 0.01);
     };
 
     // Scroll to move forward/backward
@@ -281,7 +281,7 @@ function GalleryScene({
     <>
       {/* Soft beige ambient world */}
       <color attach="background" args={["#f6efe4"]} />
-      <fog attach="fog" args={["#f6efe4", 6, 22]} />
+      <fog attach="fog" args={["#f6efe4", 30, 100]} />
 
       <ambientLight intensity={0.7} color="#f6e5cc" />
       <directionalLight position={[8, 12, 6]} intensity={0.9} color="#ffffff" />
@@ -341,8 +341,8 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
     };
 
     const n = sorted.length;
-    const ringRadius = 5; // donut radius
-    const ringCenterZ = -8; // how far in front
+    const ringRadius = 4; // tighter donut radius
+    const ringCenterZ = -6; // closer to camera
 
     return sorted.map((m, index) => {
       const followerLog = Math.log10((m.profile.follower_count ?? 0) + 1);
@@ -356,25 +356,26 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
       // Create a full donut/ring shape - distribute evenly in a circle
       const angle = (index / n) * Math.PI * 2; // full 360 degrees
       
-      // Base ring position
+      // Base ring position (flatter - more XY, less Z variation)
       const x = Math.sin(angle) * ringRadius;
-      const z = ringCenterZ + Math.cos(angle) * ringRadius;
+      const z = ringCenterZ + Math.cos(angle) * ringRadius * 0.35; // slightly more Z spread to avoid overlap
       
-      // Y = engagement (vertical position)
-      const y = (ne - 0.5) * 3;
+      // Y = engagement (vertical position - tighter)
+      const y = (ne - 0.5) * 2.5;
       
-      // Brand fit pulls slightly closer/further (but keeps ring intact)
-      const zNudge = (ns - 0.5) * 0.8;
+      // Brand fit pulls slightly closer/further (small Z change)
+      const zNudge = (ns - 0.5) * 0.4;
       
-      // Small radial offset based on followers (bigger = slightly further out)
+      // Radial offset based on followers (bigger = slightly further out)
       const radiusNudge = (nf - 0.5) * 0.6;
 
-      // tiny jitter to avoid exact overlap
+      // jitter to avoid exact overlap (more Z jitter to prevent z-fighting)
       const jitterX = Math.sin(index * 12.9898) * 0.15;
       const jitterY = Math.cos(index * 78.233) * 0.15;
+      const jitterZ = Math.sin(index * 45.123) * 0.2; // Z jitter to separate overlapping cards
 
       const finalX = x * (1 + radiusNudge / ringRadius) + jitterX;
-      const finalZ = (z - ringCenterZ) * (1 + radiusNudge / ringRadius) + ringCenterZ + zNudge;
+      const finalZ = (z - ringCenterZ) * (1 + radiusNudge / (ringRadius * 0.35)) + ringCenterZ + zNudge + jitterZ;
 
       return {
         id: m.profile.username,
@@ -409,10 +410,10 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
   return (
     <div className="relative w-full h-[calc(100vh-6rem)] rounded-3xl overflow-hidden bg-[#f6efe4] shadow-[0_40px_120px_rgba(0,0,0,0.35)]">
       {/* Top-left UI controls */}
-      <div className="pointer-events-none absolute left-4 top-4 z-40 flex flex-col gap-2 text-[11px]">
-        <div className="inline-flex items-center gap-2 rounded-full bg-black/5 px-3 py-1.5 backdrop-blur-md pointer-events-auto">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.25)]" />
-          <span className="uppercase tracking-[0.16em] text-[9px] text-black/50">
+      <div className="pointer-events-none absolute left-6 top-6 z-40 flex flex-col gap-3">
+        <div className="inline-flex items-center gap-2 rounded-full bg-black/5 px-4 py-2 backdrop-blur-md pointer-events-auto">
+          <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.25)]" />
+          <span className="uppercase tracking-[0.16em] text-[10px] text-black/50 font-medium">
             3D MATCH SPACE
           </span>
         </div>
@@ -422,14 +423,14 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
               setShowIntro(true);
               setPaused(false);
             }}
-            className="rounded-full bg-white/70 px-3 py-1.5 text-[11px] font-medium text-black/70 shadow-sm hover:bg-white"
+            className="rounded-full bg-white/70 px-4 py-2 text-sm font-medium text-black/70 shadow-sm hover:bg-white transition-colors"
           >
             Reset
           </button>
           {onExit && (
             <button
               onClick={onExit}
-              className="ml-1 rounded-full bg-black px-3 py-1.5 text-[11px] font-medium text-white/90 hover:bg-black/90"
+              className="ml-1 rounded-full bg-black px-4 py-2 text-sm font-medium text-white/90 hover:bg-black/90 transition-colors"
             >
               Back to list
             </button>
@@ -438,38 +439,58 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
       </div>
 
       {/* Axis legend (top-right) */}
-      <div className="pointer-events-none absolute right-4 top-4 z-40 text-[10px]">
-        <div className="pointer-events-auto rounded-2xl bg-white/80 px-3 py-2 border border-black/5 shadow-[0_18px_45px_rgba(0,0,0,0.18)]">
-          <p className="mb-1 text-[9px] font-semibold tracking-[0.16em] uppercase text-black/40">
-            Space map
+      <div className="pointer-events-none absolute right-6 top-6 z-40">
+        <div className="pointer-events-auto rounded-2xl bg-white/85 px-5 py-4 border border-black/5 shadow-[0_18px_45px_rgba(0,0,0,0.18)]">
+          <p className="mb-3 text-xs font-semibold tracking-[0.16em] uppercase text-black/40">
+            3D Axis Guide
           </p>
-          <div className="flex items-center gap-3">
-            <div className="relative h-10 w-10">
-              <div className="absolute left-1/2 top-0 h-6 border-l border-black/30" />
-              <div className="absolute bottom-0 left-1/2 translate-x-[-6px] text-[8px] text-black/50">
-                ↑ Y
-              </div>
-              <div className="absolute left-0 top-1/2 w-full border-t border-black/30" />
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[8px] text-black/50">
-                X →
-              </div>
-              <div className="absolute left-1/2 top-1/2 h-5 w-px rotate-45 border-l border-dashed border-black/30" />
-              <div className="absolute left-1/2 top-1/2 translate-x-1 translate-y-2 text-[8px] text-black/50">
-                Z
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <p className="text-[9px] text-black/70">
-                <span className="font-medium">Ring · Followers</span>{" "}
-                <span className="text-black/45">larger audience = further out</span>
+          <div className="flex items-start gap-4">
+            {/* 3D Axis Diagram */}
+            <svg width="80" height="90" viewBox="0 0 80 90" className="shrink-0">
+              <defs>
+                <marker id="arrowZ" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto">
+                  <polygon points="0 0, 4 2, 0 4" fill="#000000" fillOpacity="0.6" />
+                </marker>
+                <marker id="arrowX" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto">
+                  <polygon points="0 0, 4 2, 0 4" fill="#000000" fillOpacity="0.6" />
+                </marker>
+                <marker id="arrowY" markerWidth="4" markerHeight="4" refX="2" refY="2" orient="auto">
+                  <polygon points="0 0, 4 2, 0 4" fill="#000000" fillOpacity="0.6" />
+                </marker>
+              </defs>
+              
+              {/* Z axis (diagonal left-down) */}
+              <line x1="40" y1="60" x2="12" y2="78" stroke="#000000" strokeWidth="1.5" strokeOpacity="0.6" markerEnd="url(#arrowZ)" />
+              <text x="1" y="82" fontSize="9" fontWeight="500" fill="#000000" fillOpacity="0.7">Z</text>
+              
+              {/* X axis (right) */}
+              <line x1="40" y1="60" x2="68" y2="60" stroke="#000000" strokeWidth="1.5" strokeOpacity="0.6" markerEnd="url(#arrowX)" />
+              <text x="73" y="63" fontSize="9" fontWeight="500" fill="#000000" fillOpacity="0.7">X</text>
+              
+              {/* Y axis (up) */}
+              <line x1="40" y1="60" x2="40" y2="28" stroke="#000000" strokeWidth="1.5" strokeOpacity="0.6" markerEnd="url(#arrowY)" />
+              <text x="37" y="22" fontSize="9" fontWeight="500" fill="#000000" fillOpacity="0.7">Y</text>
+              
+              {/* Origin point */}
+              <circle cx="40" cy="60" r="2" fill="#000000" fillOpacity="0.6" />
+            </svg>
+            
+            {/* Labels */}
+            <div className="space-y-2.5">
+              <p className="text-xs text-black/70">
+                <span className="font-semibold">X · Followers</span>
+                <br />
+                <span className="text-black/45">larger audience →</span>
               </p>
-              <p className="text-[9px] text-black/70">
-                <span className="font-medium">Height · Engagement</span>{" "}
-                <span className="text-black/45">higher = more active</span>
+              <p className="text-xs text-black/70">
+                <span className="font-semibold">Y · Engagement</span>
+                <br />
+                <span className="text-black/45">more active ↑</span>
               </p>
-              <p className="text-[9px] text-black/70">
-                <span className="font-medium">Depth · Brand fit</span>{" "}
-                <span className="text-black/45">closer = stronger match</span>
+              <p className="text-xs text-black/70">
+                <span className="font-semibold">Z · Brand fit</span>
+                <br />
+                <span className="text-black/45">closer = better</span>
               </p>
             </div>
           </div>
@@ -518,7 +539,7 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
               Navigate your matches in 3D
             </h2>
             <p className="text-sm text-black/65 mb-4">
-              Cards form a ring around you: height shows engagement, distance shows follower size, depth shows brand fit.
+              Navigate a 3D space where X = followers, Y = engagement, Z = brand alignment.
             </p>
             <div className="mt-2 mb-5 grid grid-cols-2 gap-3 text-[11px] text-black/70">
               <div className="rounded-2xl bg-black/4 px-3 py-2">
@@ -549,7 +570,7 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
 
       <Canvas
         id="match-3d-canvas"
-        camera={{ position: INITIAL_CAMERA_POSITION.toArray(), fov: 60, near: 0.1, far: 200 }}
+        camera={{ position: INITIAL_CAMERA_POSITION.toArray(), fov: 60, near: 1.0, far: 200 }}
         shadows
       >
         <GalleryScene
