@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html, Line, Text } from "@react-three/drei";
 import * as THREE from "three";
 
 type ProfileCard = {
@@ -46,6 +46,34 @@ const WORLD_BOUNDS = {
 };
 
 const INITIAL_CAMERA_POSITION = new THREE.Vector3(0, 2.5, 12);
+
+const Axes = () => {
+  const axisLength = 5;
+  // const { scene } = useThree(); // Access the scene object from the React Three Fiber context
+
+  return (
+    <>
+    {/* X Axis */}
+    <Line
+      points={[[-axisLength, 0, -8], [axisLength, 0, -8]]}
+      color="red"
+      lineWidth={2}
+    />
+    {/* Y Axis */}
+    <Line
+      points={[[0, -axisLength, -8], [0, axisLength, -8]]}
+      color="blue"
+      lineWidth={2}
+    />
+    {/* Z Axis */}
+    <Line
+      points={[[0, 0, -8-axisLength], [0, 0, axisLength -8]]}
+      color="green"
+      lineWidth={2}
+    />
+    </>
+  )
+};
 
 function FirstPersonControls({
   cards,
@@ -222,11 +250,11 @@ function CardMesh({
         style={{ pointerEvents: "none" }}
       >
         <div
-          className={`w-56 rounded-2xl border px-3 py-2 shadow-[0_18px_45px_rgba(0,0,0,0.22)] transition-all ${
-            hovered
-              ? "bg-[#fff7ea]/100 border-black/10"
-              : "bg-[#fdf2e1]/95 border-black/5"
-          }`}
+          className={`w-56 rounded-2xl border px-3 py-2 shadow-[0_18px_45px_rgba(0,0,0,0.22)] transition-all`}
+          style={{
+            backgroundColor: cardColor,
+            borderColor: hovered ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 0.05)",
+          }}    
         >
           <div className="flex items-center gap-2 mb-1.5">
             <div className="h-7 w-7 rounded-full bg-black/5 flex items-center justify-center text-[11px] font-medium text-black/50 overflow-hidden">
@@ -267,6 +295,100 @@ function CardMesh({
   );
 }
 
+function SimpleProfile({
+  card,
+  onHover,
+  onUnhover,
+  setActiveId,
+}: {
+  card: CardInstance;
+  onHover: (id: string) => void;
+  onUnhover: () => void;
+  setActiveId: (id: string | null) => void;
+}) {
+  const { position } = card;
+  const [hovered, setHovered] = useState(false);
+  const ref = useRef<THREE.Group>(null);
+  const { camera } = useThree();
+
+  useFrame(() => {
+    if (!ref.current) return;
+    // check proximity for activating detail
+    const dist = camera.position.distanceTo(ref.current.position);
+    if (dist < 4) {
+      setActiveId(card.id);
+    }
+  });
+
+  return (
+    <group
+      ref={ref}
+      position={position}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+        onHover(card.id);
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        setHovered(false);
+        onUnhover();
+      }}
+      onClick={(e) => {
+        setActiveId(card.id)
+      }}
+    >
+      <Html
+        position={[0, 0, 0]}
+        transform
+        distanceFactor={1.6}
+        zIndexRange={[0, 0]}
+        occlude={false}
+        style={{ pointerEvents: "none" }}
+      >
+        <div
+          className={`w-50 rounded-2xl border px-3 py-2 shadow-[0_18px_45px_rgba(0,0,0,0.22)] transition-all ${
+            hovered
+              ? "bg-[#fff7ea]/100 border-black/10"
+              : "bg-[#fdf2e1]/95 border-black/5"
+          }`}
+        >
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="h-7 w-7 rounded-full bg-black/5 flex items-center justify-center text-[11px] font-medium text-black/50 overflow-hidden">
+              {card.profileImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={card.profileImageUrl.replace("_normal", "_bigger")}
+                  alt={card.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span>{card.name.charAt(0)}</span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-medium text-black/80 truncate">{card.name}</p>
+              <p className="text-[10px] text-black/40 truncate">@{card.username}</p>
+            </div>
+            <div className="ml-auto text-right">
+              <div className="text-[10px] px-1.5 py-0.5 rounded-full bg-black/5 text-black/50 mb-0.5">
+                {(card.score * 100).toFixed(0)}%
+              </div>
+              <div className="text-[9px] text-black/40">
+                {card.followerCount >= 1000000
+                  ? `${(card.followerCount / 1000000).toFixed(1)}M`
+                  : card.followerCount >= 1000
+                  ? `${(card.followerCount / 1000).toFixed(1)}K`
+                  : card.followerCount}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Html>
+    </group>
+  );
+}
+
 function GalleryScene({
   cards,
   paused,
@@ -290,7 +412,7 @@ function GalleryScene({
 
       {/* Cards */}
       {cards.map((card) => (
-        <CardMesh
+        <SimpleProfile
           key={card.id}
           card={card}
           onHover={(id) => setHoveredId(id)}
@@ -581,6 +703,7 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
           setHoveredId={setHoveredId}
           setActiveId={setActiveId}
         />
+        <Axes />
       </Canvas>
     </div>
   );
