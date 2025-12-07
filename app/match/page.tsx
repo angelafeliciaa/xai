@@ -171,6 +171,35 @@ function MatchContent() {
     }
   }, [searchParams, initialized, performMatch]);
 
+  // Fetch profile preview when username changes (debounced)
+  useEffect(() => {
+    if (!username.trim() || loading) return;
+    
+    const timer = setTimeout(async () => {
+      try {
+        setError(null);
+        const params = new URLSearchParams({
+          username: username.trim(),
+          type: searcherType,
+          top_k: '0', // Just fetch the profile, no matches needed
+        });
+        const response = await fetch(`/api/match?${params}`);
+        if (response.ok) {
+          const data = await response.json();
+          setQueryProfile(data.query_profile);
+        } else {
+          // Profile not found, clear it
+          setQueryProfile(null);
+        }
+      } catch (err) {
+        console.error('Profile preview error:', err);
+        setQueryProfile(null);
+      }
+    }, 500); // 500ms debounce
+    
+    return () => clearTimeout(timer);
+  }, [username, searcherType, loading]);
+
   const handleDrillDown = async (creatorUsername: string) => {
     if (!queryProfile) return;
     setSelectedCreator(creatorUsername);
@@ -753,9 +782,9 @@ function MatchContent() {
                   );
 
                   const insights = [
-                    { label: 'Best Match', creator: highestMatch, metric: `${(highestMatch.score * 100).toFixed(0)}%`, color: 'emerald' },
-                    { label: 'Most Affordable', creator: mostCostEffective, metric: `${formatCost(estimateCost(mostCostEffective.profile.follower_count, mostCostEffective.score).min)}+`, color: 'cyan' },
-                    { label: 'Highest Reach', creator: highestReach, metric: formatFollowers(highestReach.profile.follower_count), color: 'purple' },
+                    // { label: 'Best Match', creator: highestMatch, metric: `${(highestMatch.score * 100).toFixed(0)}%`, color: 'emerald' },
+                    // { label: 'Most Affordable', creator: mostCostEffective, metric: `${formatCost(estimateCost(mostCostEffective.profile.follower_count, mostCostEffective.score).min)}+`, color: 'cyan' },
+                    // { label: 'Highest Reach', creator: highestReach, metric: formatFollowers(highestReach.profile.follower_count), color: 'purple' },
                   ];
 
                   const colorMap = {
@@ -867,7 +896,7 @@ function MatchContent() {
                       </div>
 
                       {/* Mini Metrics Preview */}
-                      <div className="flex items-center gap-3 mr-4">
+                      {/* <div className="flex items-center gap-3 mr-4">
                         {(() => {
                           const cost = estimateCost(match.profile.follower_count, match.score);
                           return (
@@ -877,7 +906,7 @@ function MatchContent() {
                             </div>
                           );
                         })()}
-                      </div>
+                      </div> */}
 
                       {/* Score */}
                       <div className={`px-4 py-2 rounded-xl bg-gradient-to-r border flex items-center ${getScoreStyle(match.score)}`}>
