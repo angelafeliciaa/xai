@@ -66,16 +66,27 @@ export default function ProductModal({ onClose, onSave }: ProductModalProps) {
                 onClick={() => setProductType('digital')}
                 className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                   productType === 'digital'
-                    ? 'border-gray-300 bg-gray-50'
+                    ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-white border-2 border-gray-300 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className={`w-10 h-10 bg-white border-2 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                    productType === 'digital' ? 'border-blue-500' : 'border-gray-300'
+                  }`}>
                     <span className="text-xl">📥</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900 mb-1">Digital</p>
+                    <p className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                      Digital
+                      {productType === 'digital' && (
+                        <span className="text-blue-600">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </span>
+                      )}
+                    </p>
                     <p className="text-sm text-gray-600">
                       A digital product that customers can download or access, such as a software program, app, website, etc.
                     </p>

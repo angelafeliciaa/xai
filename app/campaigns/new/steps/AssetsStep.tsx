@@ -7,12 +7,11 @@ interface AssetsStepProps {
 
 export default function AssetsStep({ data, updateData }: AssetsStepProps) {
   const deliverableTypes = [
-    { id: 'video-short', name: 'Short-Form Video', icon: '🎬', desc: 'TikTok, Reels, Shorts' },
-    { id: 'video-long', name: 'Long-Form Video', icon: '🎥', desc: 'YouTube, IGTV' },
-    { id: 'photo', name: 'Photo Content', icon: '📸', desc: 'Instagram posts, product shots' },
-    { id: 'story', name: 'Story Content', icon: '📱', desc: 'Instagram/Facebook Stories' },
-    { id: 'carousel', name: 'Carousel Post', icon: '🖼️', desc: 'Multi-image posts' },
-    { id: 'blog', name: 'Blog Post', icon: '✍️', desc: 'Written content' },
+    { id: 'video-short', name: 'Video Post', icon: '🎬', desc: 'X video posts (up to 2:20)' },
+    { id: 'photo', name: 'Photo Post', icon: '📸', desc: 'X posts with images' },
+    { id: 'carousel', name: 'Multi-Image Post', icon: '🖼️', desc: 'X posts with multiple images' },
+    { id: 'thread', name: 'Thread', icon: '🧵', desc: 'Multi-tweet threads' },
+    { id: 'text', name: 'Text Post', icon: '✍️', desc: 'Standard text tweets' },
   ];
 
   const toggleDeliverable = (id: string) => {

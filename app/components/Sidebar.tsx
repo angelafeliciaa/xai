@@ -8,8 +8,8 @@ export default function Sidebar() {
 
   const navItems = [
     { name: 'Home', href: '/', icon: '🏠' },
+    { name: 'Campaigns', href: '/campaigns', icon: '📢' },
     { name: 'Brand Match', href: '/match', icon: '🎯' },
-    { name: 'Find Creators', href: '/creators', icon: '👥' },
     { name: 'Vector Search', href: '/search', icon: '🔍' },
   ];
 
@@ -48,12 +48,6 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      {/* Stats Footer */}
-      <div className="p-4 border-t border-gray-200">
-        <p className="text-xs font-medium text-gray-500 mb-1">Index Stats</p>
-        <p className="text-xs text-gray-400">51 profiles indexed</p>
-        <p className="text-xs text-gray-400">484 tweets analyzed</p>
-      </div>
     </div>
   );
 }

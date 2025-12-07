@@ -128,26 +128,31 @@ export default function CreatorsStep({ data, updateData }: CreatorsStepProps) {
           <label className="block text-sm font-medium text-gray-700 mb-3">
             Industry <span className="text-gray-400 text-xs ml-1">(Optional)</span>
           </label>
-          <select
-            multiple
-            value={data.industries || []}
-            onChange={(e) => {
-              const selected = Array.from(e.target.selectedOptions, (option) => option.value);
-              updateData({ industries: selected });
-            }}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-          >
-            <option value="">Select all industries that apply...</option>
-            <option value="fashion">Fashion & Apparel</option>
-            <option value="beauty">Beauty & Cosmetics</option>
-            <option value="fitness">Health & Fitness</option>
-            <option value="food">Food & Beverage</option>
-            <option value="tech">Technology</option>
-            <option value="home">Home & Lifestyle</option>
-            <option value="travel">Travel</option>
-            <option value="gaming">Gaming</option>
-          </select>
-          <p className="text-xs text-gray-500 mt-2">Hold Cmd/Ctrl to select multiple industries</p>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { value: 'fashion', label: 'Fashion & Apparel', icon: '👗' },
+              { value: 'beauty', label: 'Beauty & Cosmetics', icon: '💄' },
+              { value: 'fitness', label: 'Health & Fitness', icon: '💪' },
+              { value: 'food', label: 'Food & Beverage', icon: '🍔' },
+              { value: 'tech', label: 'Technology', icon: '💻' },
+              { value: 'home', label: 'Home & Lifestyle', icon: '🏠' },
+              { value: 'travel', label: 'Travel', icon: '✈️' },
+              { value: 'gaming', label: 'Gaming', icon: '🎮' },
+            ].map((industry) => (
+              <button
+                key={industry.value}
+                onClick={() => toggleArrayItem('industries', industry.value)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                  data.industries?.includes(industry.value)
+                    ? 'bg-black text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <span>{industry.icon}</span>
+                {industry.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Follower Count */}
