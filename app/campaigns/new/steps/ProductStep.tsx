@@ -1,11 +1,25 @@
 'use client';
 
+import { useState } from 'react';
+import ProductModal from '../../../products/components/ProductModal';
+
 interface ProductStepProps {
   data: any;
   updateData: (data: any) => void;
 }
 
 export default function ProductStep({ data, updateData }: ProductStepProps) {
+  const [showModal, setShowModal] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
+
+  const handleSaveProduct = (product: any) => {
+    const newProduct = { ...product, id: Date.now() };
+    setProducts([...products, newProduct]);
+    setShowModal(false);
+    // Auto-select the newly added product
+    updateData({ product: newProduct.id.toString() });
+  };
+
   return (
     <div>
       <div className="mb-8">
@@ -20,7 +34,11 @@ export default function ProductStep({ data, updateData }: ProductStepProps) {
             <label className="block text-sm font-medium text-gray-700">
               Product <span className="text-red-500">*</span>
             </label>
-            <button className="text-sm text-green-600 hover:text-green-700 flex items-center gap-1">
+            <button 
+              onClick={() => setShowModal(true)}
+              type="button"
+              className="text-sm text-green-600 hover:text-green-700 flex items-center gap-1"
+            >
               <span>+</span> Add Product
             </button>
           </div>
@@ -36,8 +54,11 @@ export default function ProductStep({ data, updateData }: ProductStepProps) {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
               >
                 <option value="">Select a product...</option>
-                <option value="product1">Sample Product 1</option>
-                <option value="product2">Sample Product 2</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id.toString()}>
+                    {product.name} - ${product.price}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -57,7 +78,7 @@ export default function ProductStep({ data, updateData }: ProductStepProps) {
               <input
                 type="checkbox"
                 checked={data.shippingRequired}
-                onChange={(e) => updateData({ shippingRequired: e.target.checked, shippingRequired: false })}
+                onChange={(e) => updateData({ shippingRequired: e.target.checked })}
                 className="mt-1 w-4 h-4"
               />
               <div className="flex-1">
@@ -121,6 +142,14 @@ export default function ProductStep({ data, updateData }: ProductStepProps) {
           />
         </div>
       </div>
+
+      {/* Product Modal */}
+      {showModal && (
+        <ProductModal
+          onClose={() => setShowModal(false)}
+          onSave={handleSaveProduct}
+        />
+      )}
     </div>
   );
 }

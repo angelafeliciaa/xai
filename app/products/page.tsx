@@ -5,8 +5,13 @@ import Sidebar from '../components/Sidebar';
 import ProductModal from './components/ProductModal';
 
 export default function Products() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showAddProduct, setShowAddProduct] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
+
+  const handleSaveProduct = (product: any) => {
+    setProducts([...products, { ...product, id: Date.now() }]);
+    setShowAddProduct(false);
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -17,78 +22,77 @@ export default function Products() {
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-semibold text-gray-900 mb-2">Your Products</h1>
+              <h1 className="text-3xl font-semibold text-gray-900 mb-2">Products</h1>
               <p className="text-gray-600">Manage your product catalog for campaigns</p>
             </div>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setShowAddProduct(true)}
               className="px-5 py-2.5 bg-black text-white rounded-lg font-medium hover:bg-gray-900 transition-colors flex items-center gap-2"
             >
-              <span>+</span> Add New Product
+              <span>+</span> Add Product
             </button>
           </div>
 
           {/* Products Grid */}
-          {products.length === 0 ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-16 text-center">
-              <div className="max-w-md mx-auto">
-                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-4xl">📦</span>
-                </div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">No products yet</h2>
-                <p className="text-gray-600 mb-6">
-                  Add products to feature in your campaigns and showcase to creators
-                </p>
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-900 transition-colors"
-                >
-                  <span>+</span> Add New Product
-                </button>
+          <div className="grid grid-cols-3 gap-6">
+            {/* Add New Product Card */}
+            <button
+              onClick={() => setShowAddProduct(true)}
+              className="bg-white rounded-xl p-8 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-all flex flex-col items-center justify-center min-h-[280px] group"
+            >
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-gray-200 transition-colors">
+                <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
               </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-6">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 transition-all"
-                >
-                  <div className="aspect-square bg-gray-100 flex items-center justify-center">
-                    <span className="text-6xl">📦</span>
+              <h3 className="font-medium text-gray-900 mb-1">Add New Product</h3>
+              <p className="text-sm text-gray-500">Upload product details</p>
+            </button>
+
+            {/* Product Cards */}
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <span className="text-2xl">{product.type === 'digital' ? '📥' : '🛒'}</span>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-1">{product.name}</h3>
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                      {product.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-semibold text-gray-900">
-                        ${product.price}
-                      </span>
-                      <button className="text-sm text-gray-600 hover:text-gray-900">
-                        Edit
-                      </button>
-                    </div>
-                  </div>
+                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded">
+                    {product.type}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )}
+                <h3 className="font-semibold text-gray-900 mb-2">{product.name}</h3>
+                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{product.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold text-gray-900">
+                    ${product.price.toFixed(2)}
+                  </span>
+                  {product.url && (
+                    <a
+                      href={product.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:text-blue-700"
+                    >
+                      View →
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </main>
 
-      {/* Product Modal */}
-      {isModalOpen && (
+      {/* Add Product Modal */}
+      {showAddProduct && (
         <ProductModal
-          onClose={() => setIsModalOpen(false)}
-          onSave={(product) => {
-            setProducts([...products, { ...product, id: Date.now() }]);
-            setIsModalOpen(false);
-          }}
+          onClose={() => setShowAddProduct(false)}
+          onSave={handleSaveProduct}
         />
       )}
     </div>
   );
 }
-
