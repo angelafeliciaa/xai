@@ -55,10 +55,16 @@ function MatchContent() {
   // Grok AI features
   const [explanations, setExplanations] = useState<Record<string, string>>({});
   const [loadingExplanation, setLoadingExplanation] = useState<string | null>(null);
+  const [expandedExplanation, setExpandedExplanation] = useState<string | null>(null);
   const [campaignBrief, setCampaignBrief] = useState<string | null>(null);
   const [loadingBrief, setLoadingBrief] = useState(false);
   const [showBriefModal, setShowBriefModal] = useState(false);
   const [briefCreator, setBriefCreator] = useState<ProfileMetadata | null>(null);
+  
+  // Predictions
+  const [predictions, setPredictions] = useState<Record<string, any>>({});
+  const [loadingPrediction, setLoadingPrediction] = useState<string | null>(null);
+  const [expandedPrediction, setExpandedPrediction] = useState<string | null>(null);
 
   const ingestProfile = useCallback(async (user: string, type: string): Promise<boolean> => {
     setStatusMessage(`Ingesting @${user} from X...`);
@@ -87,6 +93,9 @@ function MatchContent() {
     setCreatorTweets([]);
     setExplanations({});
     setCampaignBrief(null);
+    setPredictions({});
+    setExpandedPrediction(null);
+    setExpandedExplanation(null);
 
     try {
       const params = new URLSearchParams({
@@ -167,6 +176,16 @@ function MatchContent() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to get tweets');
       setCreatorTweets(data.tweets);
+      
+      // Auto-load prediction if not already loaded
+      const match = matches.find(m => m.profile.username === creatorUsername);
+      if (match && !predictions[creatorUsername] && !loadingPrediction) {
+        // Trigger prediction automatically
+        setTimeout(() => {
+          const fakeEvent = { stopPropagation: () => {} } as React.MouseEvent;
+          handlePredictPerformance(fakeEvent, match);
+        }, 500); // Small delay to avoid overwhelming
+      }
     } catch (err) {
       console.error('Drill-down error:', err);
       setCreatorTweets([]);
@@ -178,7 +197,10 @@ function MatchContent() {
   const handleExplainMatch = async (e: React.MouseEvent, match: MatchResult) => {
     e.stopPropagation();
     if (!queryProfile) return;
-    if (explanations[match.profile.username]) return; // Already have explanation
+    if (explanations[match.profile.username]) {
+      setExpandedExplanation(expandedExplanation === match.profile.username ? null : match.profile.username);
+      return;
+    }
 
     setLoadingExplanation(match.profile.username);
     try {
@@ -195,12 +217,111 @@ function MatchContent() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to get explanation');
       setExplanations(prev => ({ ...prev, [match.profile.username]: data.content }));
+      setExpandedExplanation(match.profile.username);
     } catch (err) {
       console.error('Explain match error:', err);
       setExplanations(prev => ({ ...prev, [match.profile.username]: 'Failed to generate explanation. Please try again.' }));
     } finally {
       setLoadingExplanation(null);
     }
+  };
+
+  const handlePredictPerformance = async (e: React.MouseEvent, match: MatchResult) => {
+    e.stopPropagation();
+    if (!queryProfile) return;
+    if (predictions[match.profile.username]) {
+      setExpandedPrediction(expandedPrediction === match.profile.username ? null : match.profile.username);
+      return;
+    }
+
+    setLoadingPrediction(match.profile.username);
+    try {
+      const response = await fetch('/api/grok', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'predict_performance',
+          brand: queryProfile,
+          creator: match.profile,
+          matchScore: match.score,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to get predictions');
+      setPredictions(prev => ({ ...prev, [match.profile.username]: data.content }));
+      setExpandedPrediction(match.profile.username);
+    } catch (err) {
+      console.error('Predict performance error:', err);
+      setPredictions(prev => ({ ...prev, [match.profile.username]: 'Failed to generate predictions. Please try again.' }));
+    } finally {
+      setLoadingPrediction(null);
+    }
+  };
+
+  // Cost estimator based on follower count and engagement
+  const estimateCost = (followerCount: number, matchScore: number) => {
+    // HOW THIS WORKS:
+    // 1. Industry standard = $10-100 per 1K followers for sponsored posts
+    // 2. We use $20/1K as base (mid-range)
+    // 3. Better match = worth paying more (adjusted by match score)
+    // 4. Example: 100K followers × 54% match = $100K/1K × $20 × 1.04 = ~$2,080
+    
+    const baseRate = 20; // $20 per 1k followers (industry average)
+    const matchAdjustment = 1 + (matchScore - 0.5); // 54% match = 1.04x multiplier
+    const costPer1k = baseRate * matchAdjustment;
+    const estimatedCost = (followerCount / 1000) * costPer1k;
+    
+    // Round to clean, readable numbers with ranges
+    const roundToNice = (num: number) => {
+      if (num < 100) return Math.round(num / 10) * 10; // Round to nearest $10
+      if (num < 1000) return Math.round(num / 50) * 50; // Round to nearest $50
+      if (num < 10000) return Math.round(num / 100) * 100; // Round to nearest $100
+      return Math.round(num / 500) * 500; // Round to nearest $500
+    };
+    
+    // Create ranges (±20-30% depending on size)
+    let min, max;
+    if (estimatedCost < 100) {
+      min = 50;
+      max = 150;
+    } else if (estimatedCost < 500) {
+      min = roundToNice(estimatedCost * 0.7);
+      max = roundToNice(estimatedCost * 1.3);
+    } else if (estimatedCost < 2000) {
+      min = roundToNice(estimatedCost * 0.8);
+      max = roundToNice(estimatedCost * 1.2);
+    } else {
+      min = roundToNice(estimatedCost * 0.9);
+      max = roundToNice(estimatedCost * 1.1);
+    }
+    
+    return { min, max };
+  };
+
+  // Format currency for display
+  const formatCost = (cost: number) => {
+    if (cost >= 1000000) return `$${(cost / 1000000).toFixed(1)}M`;
+    if (cost >= 1000) return `$${(cost / 1000).toFixed(0)}K`;
+    return `$${cost}`;
+  };
+
+  // Calculate ROI value score (higher match + lower relative cost = better value)
+  const calculateValueScore = (followerCount: number, matchScore: number) => {
+    const cost = estimateCost(followerCount, matchScore);
+    const avgCost = (cost.min + cost.max) / 2;
+    const costPerFollower = avgCost / followerCount;
+    
+    // Match score contributes 70% of value (0-70 points)
+    const matchPoints = matchScore * 70;
+    
+    // Cost efficiency contributes 30% (0-30 points)
+    // Industry baseline: $0.02 per follower
+    // Better than baseline = higher score
+    const baselineCost = 0.02;
+    const costEfficiency = Math.max(0, Math.min(1, 1 - ((costPerFollower - baselineCost) / baselineCost)));
+    const costPoints = costEfficiency * 30;
+    
+    return Math.min(100, Math.max(0, matchPoints + costPoints));
   };
 
   const handleGenerateBrief = async (e: React.MouseEvent, creator: ProfileMetadata) => {
@@ -383,7 +504,63 @@ function MatchContent() {
 
           {/* Results */}
           {matches.length > 0 && (
-            <div className="space-y-3">
+            <>
+              {/* Quick Insights */}
+              <div className="mb-6 grid grid-cols-3 gap-4">
+                {(() => {
+                  // Calculate best picks
+                  const highestMatch = matches[0]; // Already sorted by match score
+                  
+                  const mostCostEffective = matches.reduce((best, curr) => {
+                    const currCost = estimateCost(curr.profile.follower_count, curr.score);
+                    const bestCost = estimateCost(best.profile.follower_count, best.score);
+                    return (currCost.min + currCost.max) / 2 < (bestCost.min + bestCost.max) / 2 ? curr : best;
+                  });
+                  
+                  const highestReach = matches.reduce((best, curr) => 
+                    curr.profile.follower_count > best.profile.follower_count ? curr : best
+                  );
+
+                  const insights = [
+                    { label: 'Best Match', creator: highestMatch, metric: `${(highestMatch.score * 100).toFixed(0)}%`, color: 'emerald' },
+                    { label: 'Most Affordable', creator: mostCostEffective, metric: `${formatCost(estimateCost(mostCostEffective.profile.follower_count, mostCostEffective.score).min)}+`, color: 'cyan' },
+                    { label: 'Highest Reach', creator: highestReach, metric: formatFollowers(highestReach.profile.follower_count), color: 'purple' },
+                  ];
+
+                  const colorMap = {
+                    emerald: { text: 'rgb(52, 211, 153)', textFaded: 'rgba(52, 211, 153, 0.6)' },
+                    cyan: { text: 'rgb(34, 211, 238)', textFaded: 'rgba(34, 211, 238, 0.6)' },
+                    purple: { text: 'rgb(192, 132, 252)', textFaded: 'rgba(192, 132, 252, 0.6)' },
+                  };
+
+                  return insights.map((insight, i) => (
+                    <div key={i} className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-4 hover:bg-white/[0.03] transition-all cursor-pointer"
+                      onClick={() => handleDrillDown(insight.creator.profile.username)}>
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="text-[10px] uppercase tracking-wider" style={{ color: colorMap[insight.color as keyof typeof colorMap].textFaded }}>
+                          {insight.label}
+                        </div>
+                        <div className="text-lg font-medium" style={{ color: colorMap[insight.color as keyof typeof colorMap].text }}>
+                          {insight.metric}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {insight.creator.profile.profile_image_url && (
+                          <img src={insight.creator.profile.profile_image_url} alt="" className="w-6 h-6 rounded-full" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm text-white font-medium truncate">{insight.creator.profile.name}</div>
+                          <div className="text-xs text-white/30 truncate">
+                            @{insight.creator.profile.username} · {formatFollowers(insight.creator.profile.follower_count)} followers
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ));
+                })()}
+              </div>
+
+              <div className="space-y-3">
               {matches.map((match, index) => (
                 <div
                   key={match.profile.username}
@@ -444,10 +621,39 @@ function MatchContent() {
                         <div className="text-xs text-white/30">followers</div>
                       </div>
 
+                      {/* Mini Metrics Preview */}
+                      <div className="flex items-center gap-3 mr-4">
+                        {(() => {
+                          const cost = estimateCost(match.profile.follower_count, match.score);
+                          return (
+                            <div className="text-right">
+                              <div className="text-xs text-white/30 uppercase tracking-wider mb-0.5">Cost</div>
+                              <div className="text-sm text-white/60 font-medium">{formatCost(cost.min)}-{formatCost(cost.max)}</div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+
                       {/* Score */}
                       <div className={`px-4 py-2 rounded-xl bg-gradient-to-r border flex items-center ${getScoreStyle(match.score)}`}>
                         <span className="text-lg font-medium">{((match.score || 0) * 100).toFixed(0)}%</span>
                       </div>
+
+                      {/* Predict button */}
+                      <button
+                        onClick={(e) => handlePredictPerformance(e, match)}
+                        disabled={loadingPrediction === match.profile.username}
+                        className="px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 text-cyan-400 text-xs font-medium hover:from-cyan-500/30 hover:to-cyan-500/10 transition-all disabled:opacity-50 flex items-center gap-1.5 h-[38px]"
+                      >
+                        {loadingPrediction === match.profile.username ? (
+                          <div className="w-3 h-3 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin"></div>
+                        ) : (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                        )}
+                        Predict
+                      </button>
 
                       {/* Why button */}
                       <button
@@ -474,7 +680,7 @@ function MatchContent() {
                     </div>
 
                     {/* AI Explanation */}
-                    {explanations[match.profile.username] && (
+                    {explanations[match.profile.username] && expandedExplanation === match.profile.username && (
                       <div className="mt-4 pt-4 border-t border-white/[0.04]">
                         <div className="flex items-start gap-2">
                           <div className="shrink-0 w-5 h-5 rounded bg-gradient-to-br from-purple-500/30 to-purple-500/10 flex items-center justify-center mt-0.5">
@@ -486,6 +692,42 @@ function MatchContent() {
                             <div className="text-[10px] uppercase tracking-wider text-purple-400/60 mb-2">Grok Analysis</div>
                             <div className="text-sm text-white/60 leading-relaxed prose prose-sm prose-invert max-w-none prose-p:my-2 prose-strong:text-white/80 prose-ol:my-2 prose-li:my-0.5">
                               <ReactMarkdown>{explanations[match.profile.username]}</ReactMarkdown>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Performance Predictions */}
+                    {predictions[match.profile.username] && expandedPrediction === match.profile.username && (
+                      <div className="mt-4 pt-4 border-t border-white/[0.04]">
+                        <div className="flex items-start gap-2">
+                          <div className="shrink-0 w-5 h-5 rounded bg-gradient-to-br from-cyan-500/30 to-cyan-500/10 flex items-center justify-center mt-0.5">
+                            <svg className="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[10px] uppercase tracking-wider text-cyan-400/60 mb-2">Performance Prediction</div>
+                            <div className="text-sm text-white/60 leading-relaxed prose prose-sm prose-invert max-w-none prose-p:my-2 prose-strong:text-white/80 prose-ol:my-2 prose-li:my-0.5 prose-ul:my-2">
+                              <ReactMarkdown>{predictions[match.profile.username]}</ReactMarkdown>
+                            </div>
+                            {/* Cost Breakdown */}
+                            <div className="mt-3 p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+                              <div className="text-[10px] uppercase tracking-wider text-white/40 mb-2">Estimated Campaign Cost</div>
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-2xl font-light text-white">
+                                  {formatCost(estimateCost(match.profile.follower_count, match.score).min)}
+                                </span>
+                                <span className="text-white/30">-</span>
+                                <span className="text-2xl font-light text-white">
+                                  {formatCost(estimateCost(match.profile.follower_count, match.score).max)}
+                                </span>
+                                <span className="text-xs text-white/30 ml-2">per post</span>
+                              </div>
+                              <div className="mt-2 text-xs text-white/40">
+                                Based on {formatFollowers(match.profile.follower_count)} followers × $20/1K (industry avg) × {((match.score || 0) * 100).toFixed(0)}% match quality
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -532,7 +774,8 @@ function MatchContent() {
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+            </>
           )}
 
           {/* Drill-down */}

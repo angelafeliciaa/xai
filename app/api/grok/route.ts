@@ -60,6 +60,46 @@ Based on analyzing both their actual tweet content, provide a 2-3 sentence expla
 1. What specific content themes/topics they share
 2. How their voice and tone align
 3. Why this creator would authentically represent this brand`;
+    } else if (action === 'predict_performance') {
+      systemPrompt = `You are a data-driven influencer marketing analyst specializing in campaign performance prediction. Analyze creator and brand data to provide realistic performance predictions with clear reasoning. Base predictions on follower count, engagement patterns, content alignment, and audience demographics.`;
+
+      const formatTweets = (tweets: string[] | undefined, limit = 10) => {
+        if (!tweets?.length) return 'No tweets available';
+        return tweets.slice(0, limit).map((t: string, i: number) => `  ${i + 1}. "${t}"`).join('\n');
+      };
+
+      userPrompt = `Predict campaign performance for ${creator.name} (@${creator.username}) promoting ${brand.name} (@${brand.username}).
+
+## BRAND: ${brand.name} (@${brand.username})
+Bio: ${brand.description || 'No bio available'}
+Followers: ${formatFollowers(brand.follower_count)}
+Recent tweets:
+${formatTweets(brand.sample_tweets)}
+
+## CREATOR: ${creator.name} (@${creator.username})
+Bio: ${creator.description || 'No bio available'}
+Followers: ${formatFollowers(creator.follower_count)}
+Recent tweets:
+${formatTweets(creator.sample_tweets)}
+
+Match Score: ${Math.round(matchScore * 100)}%
+
+Provide realistic predictions in this EXACT format:
+
+**PREDICTIONS**
+- CTR: [X.X]%
+- Engagement Rate: [X.X]%
+- Conversion Rate: [X.X]%
+- Estimated Reach: [number]
+
+**REASONING**
+[2-3 sentences explaining why these numbers make sense based on the data]
+
+**RISKS**
+[1-2 sentences on potential concerns or misalignments]
+
+**CONFIDENCE**
+[High/Medium/Low] - [why]`;
     } else if (action === 'campaign_brief') {
       systemPrompt = `You are a creative strategist specializing in influencer marketing campaigns. Analyze the brand and creator's actual content to generate authentic, tailored campaign briefs that leverage their unique voices and shared themes.`;
 
@@ -95,7 +135,7 @@ Based on analyzing their actual content, generate a campaign proposal that feels
 Keep it concise and actionable.`;
     } else {
       return NextResponse.json(
-        { error: 'Invalid action. Use "explain_match" or "campaign_brief"' },
+        { error: 'Invalid action. Use "explain_match", "predict_performance", or "campaign_brief"' },
         { status: 400 }
       );
     }
