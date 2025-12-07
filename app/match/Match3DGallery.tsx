@@ -37,12 +37,12 @@ type CardInstance = ProfileCard & {
 };
 
 const WORLD_BOUNDS = {
-  minX: -20,
-  maxX: 20,
-  minY: -6,
-  maxY: 10,
-  minZ: -50,
-  maxZ: 40,
+  minX: -40,
+  maxX: 40,
+  minY: -10,
+  maxY: 15,
+  minZ: -60,
+  maxZ: 50,
 };
 
 const INITIAL_CAMERA_POSITION = new THREE.Vector3(0, 2.5, 12);
@@ -86,7 +86,7 @@ function FirstPersonControls({
       const dy = e.clientY - lastPointer.current.y;
       lastPointer.current = { x: e.clientX, y: e.clientY };
 
-      const lookSpeed = 0.005;
+      const lookSpeed = 0.012; // Increased from 0.005 for higher sensitivity
       yaw.current -= dx * lookSpeed;
       pitch.current -= dy * lookSpeed;
       // Very loose pitch clamp for smoother movement
@@ -96,7 +96,7 @@ function FirstPersonControls({
     // Scroll to move forward/backward
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const amount = -e.deltaY * 0.008;
+      const amount = -e.deltaY * 0.015; // Increased from 0.008 for faster movement
       scrollRef.current += amount;
     };
 
@@ -124,7 +124,7 @@ function FirstPersonControls({
     const euler = new THREE.Euler(pitch.current, yaw.current, 0, "YXZ");
     camera.quaternion.setFromEuler(euler);
 
-    const speed = 7;
+    const speed = 10; // Increased from 7 for faster movement
     const dir = new THREE.Vector3();
 
     // get camera forward vector (full 3D, including vertical)
@@ -143,8 +143,8 @@ function FirstPersonControls({
       move.normalize().multiplyScalar(speed * delta);
     }
 
-    // simple smoothing
-    velocity.current.lerp(move, 0.25);
+    // simple smoothing - increased for more responsive controls
+    velocity.current.lerp(move, 0.35);
 
     const nextPosition = camera.position.clone().add(velocity.current);
 
@@ -154,7 +154,7 @@ function FirstPersonControls({
     nextPosition.z = THREE.MathUtils.clamp(nextPosition.z, WORLD_BOUNDS.minZ, WORLD_BOUNDS.maxZ);
 
     // collision with cards (very soft, just to avoid exact overlap)
-    const minDistance = 0.3;
+    const minDistance = 0.15; // Reduced from 0.3 to allow closer approach
     let blocked = false;
     for (const card of cards) {
       const center = new THREE.Vector3(...card.position);
@@ -217,7 +217,8 @@ function CardMesh({
         position={[0, 0, 0]}
         transform
         distanceFactor={1.6}
-        zIndexRange={[0, 20]}
+        zIndexRange={[0, 0]}
+        occlude={false}
         style={{ pointerEvents: "none" }}
       >
         <div
@@ -341,8 +342,8 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
     };
 
     const n = sorted.length;
-    const ringRadius = 4; // tighter donut radius
-    const ringCenterZ = -6; // closer to camera
+    const ringRadius = 6; // wider donut radius for better spacing
+    const ringCenterZ = -8; // further from camera
 
     return sorted.map((m, index) => {
       const followerLog = Math.log10((m.profile.follower_count ?? 0) + 1);
@@ -356,26 +357,26 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
       // Create a full donut/ring shape - distribute evenly in a circle
       const angle = (index / n) * Math.PI * 2; // full 360 degrees
       
-      // Base ring position (flatter - more XY, less Z variation)
+      // Base ring position with better spacing
       const x = Math.sin(angle) * ringRadius;
-      const z = ringCenterZ + Math.cos(angle) * ringRadius * 0.35; // slightly more Z spread to avoid overlap
+      const z = ringCenterZ + Math.cos(angle) * ringRadius * 0.5; // more Z spread
       
-      // Y = engagement (vertical position - tighter)
-      const y = (ne - 0.5) * 2.5;
+      // Y = engagement (vertical position)
+      const y = (ne - 0.5) * 3.5;
       
-      // Brand fit pulls slightly closer/further (small Z change)
-      const zNudge = (ns - 0.5) * 0.4;
+      // Brand fit pulls slightly closer/further
+      const zNudge = (ns - 0.5) * 1.0;
       
-      // Radial offset based on followers (bigger = slightly further out)
-      const radiusNudge = (nf - 0.5) * 0.6;
+      // Radial offset based on followers (bigger = further out)
+      const radiusNudge = (nf - 0.5) * 1.2;
 
-      // jitter to avoid exact overlap (more Z jitter to prevent z-fighting)
-      const jitterX = Math.sin(index * 12.9898) * 0.15;
-      const jitterY = Math.cos(index * 78.233) * 0.15;
-      const jitterZ = Math.sin(index * 45.123) * 0.2; // Z jitter to separate overlapping cards
+      // Better jitter to prevent z-fighting and overlap
+      const jitterX = Math.sin(index * 12.9898) * 0.3;
+      const jitterY = Math.cos(index * 78.233) * 0.3;
+      const jitterZ = Math.sin(index * 45.123) * 0.5; // More Z separation
 
       const finalX = x * (1 + radiusNudge / ringRadius) + jitterX;
-      const finalZ = (z - ringCenterZ) * (1 + radiusNudge / (ringRadius * 0.35)) + ringCenterZ + zNudge + jitterZ;
+      const finalZ = (z - ringCenterZ) * (1 + radiusNudge / (ringRadius * 0.5)) + ringCenterZ + zNudge + jitterZ;
 
       return {
         id: m.profile.username,
@@ -570,8 +571,9 @@ export default function Match3DGallery({ matches, onExit }: Match3DGalleryProps)
 
       <Canvas
         id="match-3d-canvas"
-        camera={{ position: INITIAL_CAMERA_POSITION.toArray(), fov: 60, near: 1.0, far: 200 }}
+        camera={{ position: INITIAL_CAMERA_POSITION.toArray(), fov: 60, near: 0.01, far: 200 }}
         shadows
+        gl={{ logarithmicDepthBuffer: true }}
       >
         <GalleryScene
           cards={cards}
