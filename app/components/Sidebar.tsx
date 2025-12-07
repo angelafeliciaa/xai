@@ -8,25 +8,9 @@ export default function Sidebar() {
 
   const navItems = [
     { name: 'Home', href: '/', icon: '🏠' },
-    { name: 'Inbox', href: '/inbox', icon: '📥' },
-    { name: 'Brands', href: '/brands', icon: '🏢' },
-    { name: 'Products', href: '/products', icon: '📦' },
-    { name: 'Asset Library', href: '/assets', icon: '🖼️' },
     { name: 'Brand Match', href: '/match', icon: '🎯' },
-    { name: 'Vector Search', href: '/search', icon: '🔍' },
-  ];
-
-  const creatorItems = [
-    { name: 'Campaigns', href: '/campaigns', icon: '📢' },
     { name: 'Find Creators', href: '/creators', icon: '👥' },
-    { name: 'Saved Creators', href: '/saved', icon: '⭐' },
-    { name: 'Orders', href: '/orders', icon: '📋' },
-  ];
-
-  const accountItems = [
-    { name: 'Profile Settings', href: '/settings', icon: '⚙️' },
-    { name: 'Billing', href: '/billing', icon: '💳' },
-    { name: 'Payment History', href: '/payments', icon: '📊' },
+    { name: 'Vector Search', href: '/search', icon: '🔍' },
   ];
 
   return (
@@ -46,29 +30,8 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4">
-        {/* Platform Section */}
-        <div className="px-4 mb-6">
-          <p className="text-xs font-medium text-gray-500 mb-2 px-2">Platform</p>
+        <div className="px-4">
           {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                pathname === item.href
-                  ? 'bg-gray-100 text-gray-900 font-medium'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <span className="text-base">{item.icon}</span>
-              {item.name}
-            </Link>
-          ))}
-        </div>
-
-        {/* Creator Marketplace Section */}
-        <div className="px-4 mb-6">
-          <p className="text-xs font-medium text-gray-500 mb-2 px-2">Creator Marketplace</p>
-          {creatorItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -83,32 +46,13 @@ export default function Sidebar() {
             </Link>
           ))}
         </div>
-
-        {/* Account Section */}
-        <div className="px-4">
-          <p className="text-xs font-medium text-gray-500 mb-2 px-2">Account</p>
-          {accountItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                pathname === item.href
-                  ? 'bg-gray-100 text-gray-900 font-medium'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <span className="text-base">{item.icon}</span>
-              {item.name}
-            </Link>
-          ))}
-        </div>
       </nav>
 
-      {/* Campaigns Footer */}
+      {/* Stats Footer */}
       <div className="p-4 border-t border-gray-200">
-        <p className="text-xs font-medium text-gray-500 mb-1">Campaigns</p>
-        <p className="text-xs text-gray-400">No active campaigns</p>
-        <p className="text-xs text-gray-400 mt-1">Click + to create one</p>
+        <p className="text-xs font-medium text-gray-500 mb-1">Index Stats</p>
+        <p className="text-xs text-gray-400">51 profiles indexed</p>
+        <p className="text-xs text-gray-400">484 tweets analyzed</p>
       </div>
     </div>
   );
