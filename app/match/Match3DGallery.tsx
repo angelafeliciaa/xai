@@ -250,11 +250,11 @@ function CardMesh({
         style={{ pointerEvents: "none" }}
       >
         <div
-          className={`w-56 rounded-2xl border px-3 py-2 shadow-[0_18px_45px_rgba(0,0,0,0.22)] transition-all`}
-          style={{
-            backgroundColor: cardColor,
-            borderColor: hovered ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 0.05)",
-          }}    
+          className={`w-56 rounded-2xl border px-3 py-2 shadow-[0_18px_45px_rgba(0,0,0,0.22)] transition-all ${
+            hovered
+              ? "bg-[#fff7ea]/100 border-black/10"
+              : "bg-[#fdf2e1]/95 border-black/5"
+          }`}
         >
           <div className="flex items-center gap-2 mb-1.5">
             <div className="h-7 w-7 rounded-full bg-black/5 flex items-center justify-center text-[11px] font-medium text-black/50 overflow-hidden">
