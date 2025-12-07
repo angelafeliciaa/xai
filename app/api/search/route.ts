@@ -10,6 +10,8 @@ const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY!,
 });
 
+const TWEETS_NAMESPACE = 'tweets';
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -37,7 +39,7 @@ export async function GET(request: NextRequest) {
       ? { author_followers: { $gte: parseInt(minFollowers) } }
       : undefined;
 
-    const results = await index.query({
+    const results = await index.namespace(TWEETS_NAMESPACE).query({
       vector: queryEmbedding,
       topK,
       includeMetadata: true,

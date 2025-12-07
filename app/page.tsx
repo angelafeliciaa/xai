@@ -1,9 +1,33 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Sidebar from './components/Sidebar';
 
+interface Stats {
+  profiles: number;
+  tweets: number;
+  brands: number;
+  creators: number;
+}
+
 export default function Home() {
+  const [stats, setStats] = useState<Stats>({ profiles: 0, tweets: 0, brands: 0, creators: 0 });
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then(res => res.json())
+      .then(data => {
+        setStats({
+          profiles: data.profiles || 0,
+          tweets: data.tweets || 0,
+          brands: data.brands || 0,
+          creators: data.creators || 0,
+        });
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-[#050505]">
       <Sidebar />
@@ -14,7 +38,7 @@ export default function Home() {
           <div className="mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/60 mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-              51 profiles indexed
+              {stats.profiles} profiles indexed
             </div>
             <h1 className="text-5xl font-medium text-white mb-4 tracking-tight">
               Find creators that
@@ -137,19 +161,19 @@ export default function Home() {
           {/* Stats row */}
           <div className="flex items-center gap-12 py-8 border-t border-white/5">
             <div>
-              <div className="text-2xl font-medium text-white">51</div>
+              <div className="text-2xl font-medium text-white">{stats.profiles}</div>
               <div className="text-xs text-white/30">Profiles</div>
             </div>
             <div>
-              <div className="text-2xl font-medium text-white">484</div>
+              <div className="text-2xl font-medium text-white">{stats.tweets}</div>
               <div className="text-xs text-white/30">Tweets</div>
             </div>
             <div>
-              <div className="text-2xl font-medium text-white">21</div>
+              <div className="text-2xl font-medium text-white">{stats.brands}</div>
               <div className="text-xs text-white/30">Brands</div>
             </div>
             <div>
-              <div className="text-2xl font-medium text-white">30</div>
+              <div className="text-2xl font-medium text-white">{stats.creators}</div>
               <div className="text-xs text-white/30">Creators</div>
             </div>
           </div>
