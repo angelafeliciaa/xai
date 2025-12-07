@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import Sidebar from '../components/Sidebar';
 
@@ -36,6 +36,7 @@ interface TweetResult {
 
 function MatchContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [username, setUsername] = useState('');
   const [searcherType, setSearcherType] = useState<'brand' | 'creator'>('brand');
   const [placeholder, setPlaceholder] = useState('elon');
@@ -332,25 +333,46 @@ function MatchContent() {
             </div>
           )}
 
-          {/* Query Profile */}
+          {/* Query Profile + view toggle */}
           {queryProfile && (
-            <div className="flex items-center gap-4 mb-8 pb-8 border-b border-white/[0.06]">
-              {queryProfile.profile_image_url && (
-                <img
-                  src={queryProfile.profile_image_url.replace('_normal', '_bigger')}
-                  alt={queryProfile.name}
-                  className="w-12 h-12 rounded-full"
-                />
-              )}
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-white">{queryProfile.name}</span>
-                  <span className="text-white/30">@{queryProfile.username}</span>
-                </div>
-                <div className="text-sm text-white/40">
-                  {formatFollowers(queryProfile.follower_count)} followers · Finding {searcherType === 'brand' ? 'creators' : 'brands'}
+            <div className="mb-8 pb-8 border-b border-white/[0.06] flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-4">
+                {queryProfile.profile_image_url && (
+                  <img
+                    src={queryProfile.profile_image_url.replace('_normal', '_bigger')}
+                    alt={queryProfile.name}
+                    className="w-12 h-12 rounded-full"
+                  />
+                )}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-white">{queryProfile.name}</span>
+                    <span className="text-white/30">@{queryProfile.username}</span>
+                  </div>
+                  <div className="text-sm text-white/40">
+                    {formatFollowers(queryProfile.follower_count)} followers · Finding {searcherType === 'brand' ? 'creators' : 'brands'}
+                  </div>
                 </div>
               </div>
+
+              {matches.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!queryProfile) return;
+                    const params = new URLSearchParams();
+                    params.set('username', queryProfile.username);
+                    params.set('type', searcherType);
+                    router.push(`/match/space?${params.toString()}`);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full bg-white text-xs font-medium text-black px-3 py-1.5 hover:bg-white/90"
+                >
+                  <span>Open 3D space</span>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
             </div>
           )}
 
