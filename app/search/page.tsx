@@ -63,163 +63,166 @@ export default function SearchPage() {
     return count.toString();
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 0.5) return 'bg-green-500/20 text-green-400 ring-1 ring-green-500/30';
-    if (score >= 0.4) return 'bg-yellow-500/20 text-yellow-400 ring-1 ring-yellow-500/30';
-    return 'bg-white/10 text-white/60 ring-1 ring-white/10';
+  const getScoreStyle = (score: number) => {
+    if (score >= 0.5) return 'from-emerald-500/20 to-emerald-500/5 text-emerald-400 border-emerald-500/20';
+    if (score >= 0.4) return 'from-amber-500/20 to-amber-500/5 text-amber-400 border-amber-500/20';
+    return 'from-white/10 to-white/5 text-white/50 border-white/10';
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a]">
+    <div className="flex min-h-screen bg-[#050505]">
       <Sidebar />
 
-      <main className="ml-64 flex-1 p-8">
-        <div className="max-w-4xl mx-auto">
+      <main className="ml-64 flex-1 p-8 lg:p-12">
+        <div className="max-w-3xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-semibold text-white mb-2">Vector Search</h1>
-            <p className="text-white/50">Test semantic search against creator posts in the vector database</p>
+          <div className="mb-10">
+            <h1 className="text-3xl font-medium text-white mb-2 tracking-tight">Vector Search</h1>
+            <p className="text-white/40">Test semantic search against creator tweets</p>
           </div>
 
           {/* Search Form */}
-          <form onSubmit={handleSearch} className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 mb-6">
+          <form onSubmit={handleSearch} className="mb-8">
             <div className="mb-4">
-              <label htmlFor="query" className="block text-sm font-medium text-white/70 mb-2">
-                Campaign Query / Search Text
-              </label>
+              <label className="block text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">Query</label>
               <textarea
-                id="query"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="e.g., AI startup seeking tech thought leaders for product launch campaign"
-                className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl text-white placeholder-white/30 focus:ring-2 focus:ring-white/20 focus:border-transparent resize-none transition-all"
+                placeholder="AI startup seeking tech thought leaders for product launch campaign"
+                className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all resize-none"
                 rows={3}
               />
             </div>
 
-            <div className="flex gap-4 mb-4">
-              <div className="flex-1">
-                <label htmlFor="topK" className="block text-sm font-medium text-white/70 mb-2">
-                  Results Count
-                </label>
+            <div className="flex gap-3 items-end">
+              <div className="w-32">
+                <label className="block text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">Results</label>
                 <select
-                  id="topK"
                   value={topK}
                   onChange={(e) => setTopK(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-black/50 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-white/20 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer"
                 >
-                  <option value="5">5 results</option>
-                  <option value="10">10 results</option>
-                  <option value="20">20 results</option>
-                  <option value="50">50 results</option>
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
                 </select>
               </div>
-              <div className="flex-1">
-                <label htmlFor="minFollowers" className="block text-sm font-medium text-white/70 mb-2">
-                  Min Followers (optional)
-                </label>
+              <div className="w-40">
+                <label className="block text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">Min Followers</label>
                 <input
                   type="number"
-                  id="minFollowers"
                   value={minFollowers}
                   onChange={(e) => setMinFollowers(e.target.value)}
-                  placeholder="e.g., 100000"
-                  className="w-full px-4 py-2.5 bg-black/50 border border-white/10 rounded-lg text-white placeholder-white/30 focus:ring-2 focus:ring-white/20 focus:border-transparent transition-all"
+                  placeholder="Any"
+                  className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-white/20 transition-all"
                 />
               </div>
+              <button
+                type="submit"
+                disabled={loading || !query.trim()}
+                className="flex-1 px-6 py-2.5 bg-white text-black font-medium rounded-xl hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
+                    Searching
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Search
+                  </>
+                )}
+              </button>
             </div>
-
-            <button
-              type="submit"
-              disabled={loading || !query.trim()}
-              className="w-full bg-white text-black py-3 rounded-xl font-medium hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Searching...' : 'Search Posts'}
-            </button>
           </form>
 
           {/* Error */}
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6">
-              <p className="text-red-400">{error}</p>
+            <div className="mb-6 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              {error}
             </div>
           )}
 
           {/* Results */}
           {results.length > 0 && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-medium text-white">
-                Found {results.length} matching posts
-              </h2>
+            <div>
+              <div className="text-sm text-white/40 mb-4">{results.length} results</div>
+              <div className="space-y-3">
+                {results.map((result, index) => (
+                  <div
+                    key={result.id}
+                    className="group relative rounded-2xl p-[1px] bg-gradient-to-b from-white/[0.08] to-transparent hover:from-white/[0.12] transition-all duration-300"
+                  >
+                    <div className="rounded-2xl bg-[#080808] group-hover:bg-[#0a0a0a] p-5 transition-all">
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg font-light text-white/15">{index + 1}</span>
+                          <a
+                            href={`https://x.com/${result.metadata.author_username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-white hover:text-white/80 transition-colors"
+                          >
+                            @{result.metadata.author_username}
+                          </a>
+                          <span className="text-sm text-white/30">
+                            {formatFollowers(result.metadata.author_followers)}
+                          </span>
+                        </div>
+                        <div className={`px-3 py-1 rounded-lg bg-gradient-to-r border text-sm font-medium ${getScoreStyle(result.score)}`}>
+                          {result.score.toFixed(3)}
+                        </div>
+                      </div>
 
-              {results.map((result, index) => (
-                <div
-                  key={result.id}
-                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-white/40">#{index + 1}</span>
-                      <a
-                        href={`https://x.com/${result.metadata.author_username}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-medium text-white hover:text-white/80 transition-colors"
-                      >
-                        @{result.metadata.author_username}
-                      </a>
-                      <span className="text-sm text-white/40">
-                        {formatFollowers(result.metadata.author_followers)} followers
-                      </span>
+                      <p className="text-white/60 text-sm leading-relaxed mb-3">
+                        {result.metadata.text}
+                      </p>
+
+                      <div className="flex items-center gap-4 text-xs text-white/30">
+                        {result.metadata.like_count !== undefined && (
+                          <span>{result.metadata.like_count.toLocaleString()} likes</span>
+                        )}
+                        {result.metadata.retweet_count !== undefined && (
+                          <span>{result.metadata.retweet_count.toLocaleString()} retweets</span>
+                        )}
+                        <a
+                          href={`https://x.com/${result.metadata.author_username}/status/${result.metadata.post_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-white/40 hover:text-white/60 transition-colors ml-auto"
+                        >
+                          View on X
+                        </a>
+                      </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getScoreColor(result.score)}`}>
-                      {result.score.toFixed(3)}
-                    </span>
                   </div>
-
-                  <p className="text-white/70 whitespace-pre-wrap mb-3">
-                    {result.metadata.text}
-                  </p>
-
-                  <div className="flex items-center gap-4 text-sm text-white/40">
-                    {result.metadata.like_count !== undefined && (
-                      <span>❤️ {result.metadata.like_count.toLocaleString()}</span>
-                    )}
-                    {result.metadata.retweet_count !== undefined && (
-                      <span>🔁 {result.metadata.retweet_count.toLocaleString()}</span>
-                    )}
-                    <a
-                      href={`https://x.com/${result.metadata.author_username}/status/${result.metadata.post_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-white/50 hover:text-white transition-colors ml-auto"
-                    >
-                      View on X →
-                    </a>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
 
-          {/* Empty state */}
+          {/* Empty state after search */}
           {!loading && !error && results.length === 0 && query && (
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-12 border border-white/10 text-center">
-              <p className="text-white/50">No results found. Try a different query.</p>
+            <div className="text-center py-12">
+              <p className="text-white/40">No results found. Try a different query.</p>
             </div>
           )}
 
           {/* Initial state */}
           {!query && results.length === 0 && (
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-12 border border-white/10 text-center">
-              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center py-20">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-white/[0.03] flex items-center justify-center">
+                <svg className="w-8 h-8 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-white mb-2">Test Vector Search</h3>
-              <p className="text-white/50 max-w-md mx-auto">
-                Enter a campaign description or search query above to find semantically similar creator posts from the Pinecone index.
+              <h3 className="text-lg font-medium text-white mb-2">Semantic tweet search</h3>
+              <p className="text-white/40 max-w-sm mx-auto">
+                Enter a campaign description to find matching creator tweets from the vector index
               </p>
             </div>
           )}

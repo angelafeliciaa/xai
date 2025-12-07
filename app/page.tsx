@@ -5,104 +5,152 @@ import Sidebar from './components/Sidebar';
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a]">
+    <div className="flex min-h-screen bg-[#050505]">
       <Sidebar />
 
-      <main className="ml-64 flex-1 p-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-semibold text-white mb-2">Dashboard</h1>
-            <p className="text-white/50">Welcome to CreatorMatch. Find the perfect creators for your brand.</p>
+      <main className="ml-64 flex-1 p-8 lg:p-12">
+        <div className="max-w-5xl">
+          {/* Hero Section */}
+          <div className="mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/60 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+              51 profiles indexed
+            </div>
+            <h1 className="text-5xl font-medium text-white mb-4 tracking-tight">
+              Find creators that
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/90 to-white/50">
+                match your brand
+              </span>
+            </h1>
+            <p className="text-lg text-white/40 max-w-xl leading-relaxed">
+              Semantic matching powered by embeddings. Discover creators whose content style aligns with your brand voice.
+            </p>
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
             <Link
               href="/match"
-              className="group bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all"
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.08] to-transparent p-[1px]"
             >
-              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+              <div className="relative rounded-2xl bg-[#0a0a0a] p-6 h-full transition-all duration-300 group-hover:bg-[#0f0f0f]">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-medium text-white mb-1">Brand Match</h3>
+                  <p className="text-sm text-white/40">Find matching creators</p>
+                </div>
+                <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                  <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </div>
               </div>
-              <h3 className="font-semibold text-white mb-2">Brand Match</h3>
-              <p className="text-sm text-white/50">Find creators that match your brand&apos;s voice and content style</p>
             </Link>
 
             <Link
               href="/creators"
-              className="group bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all"
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.08] to-transparent p-[1px]"
             >
-              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
+              <div className="relative rounded-2xl bg-[#0a0a0a] p-6 h-full transition-all duration-300 group-hover:bg-[#0f0f0f]">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-medium text-white mb-1">Browse Creators</h3>
+                  <p className="text-sm text-white/40">Explore indexed profiles</p>
+                </div>
+                <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                  <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </div>
               </div>
-              <h3 className="font-semibold text-white mb-2">Find Creators</h3>
-              <p className="text-sm text-white/50">Browse all indexed creators and filter by followers</p>
             </Link>
 
             <Link
               href="/search"
-              className="group bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/20 hover:bg-white/[0.07] transition-all"
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.08] to-transparent p-[1px]"
             >
-              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+              <div className="relative rounded-2xl bg-[#0a0a0a] p-6 h-full transition-all duration-300 group-hover:bg-[#0f0f0f]">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-medium text-white mb-1">Vector Search</h3>
+                  <p className="text-sm text-white/40">Test semantic queries</p>
+                </div>
+                <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                  <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </div>
               </div>
-              <h3 className="font-semibold text-white mb-2">Vector Search</h3>
-              <p className="text-sm text-white/50">Test semantic search against creator posts</p>
             </Link>
           </div>
 
-          {/* How It Works */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 mb-8">
-            <h2 className="text-xl font-semibold text-white mb-6">How It Works</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-white font-semibold">1</span>
+          {/* How it works */}
+          <div className="mb-16">
+            <h2 className="text-xs font-medium text-white/30 uppercase tracking-widest mb-8">How it works</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="relative">
+                <div className="text-6xl font-light text-white/[0.03] absolute -top-4 -left-2">01</div>
+                <div className="relative">
+                  <h4 className="font-medium text-white mb-2">Ingest profiles</h4>
+                  <p className="text-sm text-white/40 leading-relaxed">
+                    Fetch profiles from X and generate embeddings from bio + recent tweets
+                  </p>
                 </div>
-                <h4 className="font-medium text-white mb-2">Ingest Profiles</h4>
-                <p className="text-sm text-white/40">Profiles from X are fetched and embedded using OpenAI</p>
               </div>
-              <div className="text-center">
-                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-white font-semibold">2</span>
+              <div className="relative">
+                <div className="text-6xl font-light text-white/[0.03] absolute -top-4 -left-2">02</div>
+                <div className="relative">
+                  <h4 className="font-medium text-white mb-2">Semantic matching</h4>
+                  <p className="text-sm text-white/40 leading-relaxed">
+                    Profile embeddings capture content style, not just keywords
+                  </p>
                 </div>
-                <h4 className="font-medium text-white mb-2">Semantic Matching</h4>
-                <p className="text-sm text-white/40">Bio + tweets are combined into profile embeddings</p>
               </div>
-              <div className="text-center">
-                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-white font-semibold">3</span>
+              <div className="relative">
+                <div className="text-6xl font-light text-white/[0.03] absolute -top-4 -left-2">03</div>
+                <div className="relative">
+                  <h4 className="font-medium text-white mb-2">Find matches</h4>
+                  <p className="text-sm text-white/40 leading-relaxed">
+                    Vector similarity surfaces creators whose voice matches your brand
+                  </p>
                 </div>
-                <h4 className="font-medium text-white mb-2">Find Matches</h4>
-                <p className="text-sm text-white/40">Vector similarity finds creators that match your brand voice</p>
               </div>
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-white/10 text-center">
-              <p className="text-3xl font-semibold text-white mb-1">51</p>
-              <p className="text-xs text-white/40 uppercase tracking-wider">Profiles Indexed</p>
+          {/* Stats row */}
+          <div className="flex items-center gap-12 py-8 border-t border-white/5">
+            <div>
+              <div className="text-2xl font-medium text-white">51</div>
+              <div className="text-xs text-white/30">Profiles</div>
             </div>
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-white/10 text-center">
-              <p className="text-3xl font-semibold text-white mb-1">484</p>
-              <p className="text-xs text-white/40 uppercase tracking-wider">Tweets Analyzed</p>
+            <div>
+              <div className="text-2xl font-medium text-white">484</div>
+              <div className="text-xs text-white/30">Tweets</div>
             </div>
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-white/10 text-center">
-              <p className="text-3xl font-semibold text-white mb-1">21</p>
-              <p className="text-xs text-white/40 uppercase tracking-wider">Brands</p>
+            <div>
+              <div className="text-2xl font-medium text-white">21</div>
+              <div className="text-xs text-white/30">Brands</div>
             </div>
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-white/10 text-center">
-              <p className="text-3xl font-semibold text-white mb-1">30</p>
-              <p className="text-xs text-white/40 uppercase tracking-wider">Creators</p>
+            <div>
+              <div className="text-2xl font-medium text-white">30</div>
+              <div className="text-xs text-white/30">Creators</div>
             </div>
           </div>
         </div>

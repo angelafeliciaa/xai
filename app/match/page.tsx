@@ -43,35 +43,23 @@ function MatchContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-
-  // Filter state
   const [minFollowers, setMinFollowers] = useState<string>('');
-
-  // Drill-down state
   const [selectedCreator, setSelectedCreator] = useState<string | null>(null);
   const [creatorTweets, setCreatorTweets] = useState<TweetResult[]>([]);
   const [loadingTweets, setLoadingTweets] = useState(false);
-
-  // Expanded card state
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
   const ingestProfile = useCallback(async (user: string, type: string): Promise<boolean> => {
-    setStatusMessage(`Ingesting @${user} from X (this may take a few seconds)...`);
-
+    setStatusMessage(`Ingesting @${user} from X...`);
     try {
       const response = await fetch('/api/ingest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: user, type }),
       });
-
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Ingestion failed');
-      }
-
-      setStatusMessage(data.existed ? 'Profile found!' : `Ingested @${user} successfully!`);
+      if (!response.ok) throw new Error(data.error || 'Ingestion failed');
+      setStatusMessage(data.existed ? 'Profile found!' : `Ingested @${user}!`);
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to ingest profile');
@@ -79,10 +67,8 @@ function MatchContent() {
     }
   }, []);
 
-  // Core match logic that can be called programmatically
   const performMatch = useCallback(async (searchUsername: string, type: 'brand' | 'creator', minFollowersFilter?: string) => {
     if (!searchUsername.trim()) return;
-
     setLoading(true);
     setError(null);
     setStatusMessage(null);
@@ -95,32 +81,20 @@ function MatchContent() {
         type: type,
         top_k: '10',
       });
-
-      if (minFollowersFilter) {
-        params.set('min_followers', minFollowersFilter);
-      }
+      if (minFollowersFilter) params.set('min_followers', minFollowersFilter);
 
       let response = await fetch(`/api/match?${params}`);
       let data = await response.json();
 
-      // If profile not found, try to ingest it
       if (response.status === 404 && data.error?.includes('not found')) {
         const ingested = await ingestProfile(searchUsername.trim(), type);
-        if (!ingested) {
-          setLoading(false);
-          return;
-        }
-
-        // Retry the match
+        if (!ingested) { setLoading(false); return; }
         setStatusMessage('Finding matches...');
         response = await fetch(`/api/match?${params}`);
         data = await response.json();
       }
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Match failed');
-      }
-
+      if (!response.ok) throw new Error(data.error || 'Match failed');
       setStatusMessage(null);
       setQueryProfile(data.query_profile);
       setMatches(data.matches);
@@ -138,35 +112,25 @@ function MatchContent() {
     await performMatch(username, searcherType, minFollowers);
   };
 
-  // Read URL params and auto-trigger search
   useEffect(() => {
     if (initialized) return;
-
     const urlUsername = searchParams.get('username');
     const urlType = searchParams.get('type') as 'brand' | 'creator' | null;
-
     if (urlUsername) {
       setUsername(urlUsername);
-      if (urlType === 'brand' || urlType === 'creator') {
-        setSearcherType(urlType);
-      }
+      if (urlType === 'brand' || urlType === 'creator') setSearcherType(urlType);
       setInitialized(true);
-      // Auto-trigger search after state is set
-      setTimeout(() => {
-        performMatch(urlUsername, urlType || 'brand');
-      }, 100);
+      setTimeout(() => performMatch(urlUsername, urlType || 'brand'), 100);
     } else {
-      setUsername('Nike'); // Default
+      setUsername('Nike');
       setInitialized(true);
     }
   }, [searchParams, initialized, performMatch]);
 
   const handleDrillDown = async (creatorUsername: string) => {
     if (!queryProfile) return;
-
     setSelectedCreator(creatorUsername);
     setLoadingTweets(true);
-
     try {
       const response = await fetch('/api/match', {
         method: 'POST',
@@ -177,13 +141,8 @@ function MatchContent() {
           top_k: 5,
         }),
       });
-
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to get tweets');
-      }
-
+      if (!response.ok) throw new Error(data.error || 'Failed to get tweets');
       setCreatorTweets(data.tweets);
     } catch (err) {
       console.error('Drill-down error:', err);
@@ -199,225 +158,225 @@ function MatchContent() {
     return count.toString();
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 0.55) return 'bg-green-500/20 text-green-400 ring-1 ring-green-500/30';
-    if (score >= 0.5) return 'bg-yellow-500/20 text-yellow-400 ring-1 ring-yellow-500/30';
-    return 'bg-white/10 text-white/60 ring-1 ring-white/10';
+  const getScoreStyle = (score: number) => {
+    if (score >= 0.55) return 'from-emerald-500/20 to-emerald-500/5 text-emerald-400 border-emerald-500/20';
+    if (score >= 0.5) return 'from-amber-500/20 to-amber-500/5 text-amber-400 border-amber-500/20';
+    return 'from-white/10 to-white/5 text-white/50 border-white/10';
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0a0a0a]">
+    <div className="flex min-h-screen bg-[#050505]">
       <Sidebar />
 
-      <main className="ml-64 flex-1 p-8">
-        <div className="max-w-5xl mx-auto">
+      <main className="ml-64 flex-1 p-8 lg:p-12">
+        <div className="max-w-5xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-semibold text-white mb-2">Brand-Creator Match</h1>
-            <p className="text-white/50">Find creators that match a brand&apos;s voice and content style</p>
+          <div className="mb-10">
+            <h1 className="text-3xl font-medium text-white mb-2 tracking-tight">Brand Match</h1>
+            <p className="text-white/40">Discover creators whose content style aligns with your brand</p>
           </div>
 
-          {/* Search Form */}
-          <form onSubmit={handleMatch} className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 mb-6">
-            <div className="flex gap-4 items-end flex-wrap">
-              <div className="flex-1 min-w-[200px]">
-                <label htmlFor="username" className="block text-sm font-medium text-white/70 mb-2">
-                  Username (without @)
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="e.g., Nike"
-                  className="w-full px-4 py-2.5 bg-black/50 border border-white/10 rounded-lg text-white placeholder-white/30 focus:ring-2 focus:ring-white/20 focus:border-transparent transition-all"
-                />
+          {/* Search */}
+          <form onSubmit={handleMatch} className="mb-8">
+            <div className="flex gap-3 items-end">
+              <div className="flex-1">
+                <label className="block text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">Username</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">@</span>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Nike"
+                    className="w-full pl-8 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all"
+                  />
+                </div>
               </div>
-              <div className="w-36">
-                <label htmlFor="type" className="block text-sm font-medium text-white/70 mb-2">
-                  I am a...
-                </label>
+              <div className="w-32">
+                <label className="block text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">Type</label>
                 <select
-                  id="type"
                   value={searcherType}
                   onChange={(e) => setSearcherType(e.target.value as 'brand' | 'creator')}
-                  className="w-full px-4 py-2.5 bg-black/50 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-white/20 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer"
                 >
                   <option value="brand">Brand</option>
                   <option value="creator">Creator</option>
                 </select>
               </div>
-              <div className="w-40">
-                <label htmlFor="minFollowers" className="block text-sm font-medium text-white/70 mb-2">
-                  Min Followers
-                </label>
+              <div className="w-32">
+                <label className="block text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">Min Followers</label>
                 <select
-                  id="minFollowers"
                   value={minFollowers}
                   onChange={(e) => setMinFollowers(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-black/50 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-white/20 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer"
                 >
                   <option value="">Any</option>
                   <option value="10000">10K+</option>
-                  <option value="50000">50K+</option>
                   <option value="100000">100K+</option>
-                  <option value="500000">500K+</option>
                   <option value="1000000">1M+</option>
                 </select>
               </div>
               <button
                 type="submit"
                 disabled={loading || !username.trim()}
-                className="px-6 py-2.5 bg-white text-black rounded-lg font-medium hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-white text-black font-medium rounded-xl hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2"
               >
                 {loading ? (
-                  <span className="flex items-center gap-2">
+                  <>
                     <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                     </svg>
-                    Matching...
-                  </span>
-                ) : 'Find Matches'}
+                    <span>Matching</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span>Match</span>
+                  </>
+                )}
               </button>
             </div>
           </form>
 
-          {/* Status Message */}
+          {/* Status */}
           {statusMessage && !error && (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4 mb-6 flex items-center gap-3">
-              <div className="animate-spin h-4 w-4 border-2 border-white/40 border-t-transparent rounded-full"></div>
-              <p className="text-white/70">{statusMessage}</p>
+            <div className="flex items-center gap-3 mb-6 text-white/50">
+              <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin"></div>
+              {statusMessage}
             </div>
           )}
 
           {/* Error */}
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6">
-              <p className="text-red-400">{error}</p>
+            <div className="mb-6 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              {error}
             </div>
           )}
 
-          {/* Query Profile Info */}
+          {/* Query Profile */}
           {queryProfile && (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4 mb-6 flex items-center gap-4">
+            <div className="flex items-center gap-4 mb-8 pb-8 border-b border-white/[0.06]">
               {queryProfile.profile_image_url && (
                 <img
                   src={queryProfile.profile_image_url.replace('_normal', '_bigger')}
                   alt={queryProfile.name}
-                  className="w-10 h-10 rounded-full ring-2 ring-white/10"
+                  className="w-12 h-12 rounded-full"
                 />
               )}
               <div>
-                <p className="text-white">
-                  Searching as <strong>{queryProfile.name}</strong>
-                  <span className="text-white/40"> (@{queryProfile.username})</span>
-                </p>
-                <p className="text-sm text-white/40">
-                  {formatFollowers(queryProfile.follower_count)} followers · Finding matching {searcherType === 'brand' ? 'creators' : 'brands'}
-                </p>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-white">{queryProfile.name}</span>
+                  <span className="text-white/30">@{queryProfile.username}</span>
+                </div>
+                <div className="text-sm text-white/40">
+                  {formatFollowers(queryProfile.follower_count)} followers · Finding {searcherType === 'brand' ? 'creators' : 'brands'}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Results Grid */}
+          {/* Results */}
           {matches.length > 0 && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <div className="space-y-3">
               {matches.map((match, index) => (
                 <div
                   key={match.profile.username}
-                  className={`group bg-white/5 backdrop-blur-sm rounded-2xl p-5 border transition-all cursor-pointer ${
-                    selectedCreator === match.profile.username
-                      ? 'border-white/40 bg-white/10'
-                      : 'border-white/10 hover:border-white/20 hover:bg-white/[0.07]'
-                  }`}
                   onClick={() => searcherType === 'brand' && handleDrillDown(match.profile.username)}
+                  className={`group relative rounded-2xl p-[1px] transition-all duration-300 cursor-pointer ${
+                    selectedCreator === match.profile.username
+                      ? 'bg-gradient-to-r from-white/30 to-white/10'
+                      : 'bg-gradient-to-r from-white/[0.08] to-transparent hover:from-white/[0.12]'
+                  }`}
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-white/20 w-8">#{index + 1}</span>
+                  <div className={`rounded-2xl p-5 transition-all ${
+                    selectedCreator === match.profile.username ? 'bg-[#0a0a0a]' : 'bg-[#080808] group-hover:bg-[#0a0a0a]'
+                  }`}>
+                    <div className="flex items-center gap-4">
+                      {/* Rank */}
+                      <div className="w-8 text-center">
+                        <span className="text-2xl font-light text-white/10">{index + 1}</span>
+                      </div>
+
+                      {/* Avatar */}
                       {match.profile.profile_image_url ? (
                         <img
                           src={match.profile.profile_image_url.replace('_normal', '_bigger')}
                           alt={match.profile.name}
-                          className="w-12 h-12 rounded-full object-cover ring-2 ring-white/10"
+                          className="w-11 h-11 rounded-full"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center ring-2 ring-white/10">
-                          <span className="text-white/50 text-lg">{match.profile.name.charAt(0)}</span>
+                        <div className="w-11 h-11 rounded-full bg-white/5 flex items-center justify-center">
+                          <span className="text-white/30 font-medium">{match.profile.name.charAt(0)}</span>
                         </div>
                       )}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-white">{match.profile.name}</h3>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-medium text-white">{match.profile.name}</span>
                           {match.profile.verified && (
                             <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z" />
+                              <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484z" />
                             </svg>
                           )}
+                          <a
+                            href={`https://x.com/${match.profile.username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-sm text-white/30 hover:text-white/50 transition-colors"
+                          >
+                            @{match.profile.username}
+                          </a>
                         </div>
-                        <a
-                          href={`https://x.com/${match.profile.username}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-white/40 hover:text-white/60 transition-colors"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          @{match.profile.username}
-                        </a>
+                        <p className="text-sm text-white/40 truncate">{match.profile.description || 'No bio'}</p>
                       </div>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getScoreColor(match.score || 0)}`}>
-                      {((match.score || 0) * 100).toFixed(0)}%
-                    </span>
-                  </div>
 
-                  <p className="text-sm text-white/50 mb-3 line-clamp-2">
-                    {match.profile.description || 'No bio'}
-                  </p>
+                      {/* Followers */}
+                      <div className="text-right mr-4">
+                        <div className="text-sm text-white/60">{formatFollowers(match.profile.follower_count)}</div>
+                        <div className="text-xs text-white/30">followers</div>
+                      </div>
 
-                  {/* Sample Tweet Preview */}
-                  {match.profile.sample_tweets && match.profile.sample_tweets.length > 0 && (
-                    <div className="mb-3">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setExpandedCard(expandedCard === match.profile.username ? null : match.profile.username);
-                        }}
-                        className="text-xs text-white/30 hover:text-white/50 flex items-center gap-1 transition-colors"
-                      >
-                        <span>{expandedCard === match.profile.username ? 'Hide' : 'Show'} sample tweets</span>
-                        <svg
-                          className={`w-3 h-3 transition-transform ${expandedCard === match.profile.username ? 'rotate-180' : ''}`}
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      {/* Score */}
+                      <div className={`px-4 py-2 rounded-xl bg-gradient-to-r border ${getScoreStyle(match.score)}`}>
+                        <span className="text-lg font-medium">{((match.score || 0) * 100).toFixed(0)}%</span>
+                      </div>
+
+                      {/* Arrow */}
+                      {searcherType === 'brand' && (
+                        <svg className="w-5 h-5 text-white/20 group-hover:text-white/40 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
                         </svg>
-                      </button>
-                      {expandedCard === match.profile.username && (
-                        <div className="mt-2 space-y-2">
-                          {match.profile.sample_tweets.slice(0, 2).map((tweet, i) => (
-                            <p key={i} className="text-xs text-white/40 bg-black/30 p-2 rounded-lg line-clamp-2">
-                              {tweet}
-                            </p>
-                          ))}
-                        </div>
                       )}
                     </div>
-                  )}
 
-                  <div className="flex items-center justify-between text-sm pt-3 border-t border-white/5">
-                    <span className="text-white/40">{formatFollowers(match.profile.follower_count)} followers</span>
-                    {searcherType === 'brand' && (
-                      <span className="text-white/50 group-hover:text-white transition-colors flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        View tweets
-                      </span>
+                    {/* Expandable tweets */}
+                    {match.profile.sample_tweets && match.profile.sample_tweets.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-white/[0.04]">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setExpandedCard(expandedCard === match.profile.username ? null : match.profile.username);
+                          }}
+                          className="text-xs text-white/30 hover:text-white/50 transition-colors flex items-center gap-1"
+                        >
+                          {expandedCard === match.profile.username ? 'Hide' : 'View'} sample tweets
+                          <svg className={`w-3 h-3 transition-transform ${expandedCard === match.profile.username ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        {expandedCard === match.profile.username && (
+                          <div className="mt-3 space-y-2">
+                            {match.profile.sample_tweets.slice(0, 2).map((tweet, i) => (
+                              <p key={i} className="text-xs text-white/30 bg-white/[0.02] px-3 py-2 rounded-lg line-clamp-2">{tweet}</p>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -425,60 +384,51 @@ function MatchContent() {
             </div>
           )}
 
-          {/* Drill-down: Creator Tweets */}
+          {/* Drill-down */}
           {selectedCreator && (
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <svg className="w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                @{selectedCreator}&apos;s tweets that match @{username}
-              </h2>
-
+            <div className="mt-8 rounded-2xl bg-white/[0.02] border border-white/[0.06] p-6">
+              <h3 className="text-sm font-medium text-white/60 mb-4">
+                Tweets from @{selectedCreator} matching @{username}
+              </h3>
               {loadingTweets ? (
-                <div className="flex items-center gap-2 text-white/50">
-                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Loading tweets...
+                <div className="flex items-center gap-2 text-white/40">
+                  <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin"></div>
+                  Loading...
                 </div>
               ) : creatorTweets.length > 0 ? (
                 <div className="space-y-4">
-                  {creatorTweets.map((item, index) => (
-                    <div key={index} className="border-l-2 border-white/20 pl-4 py-2">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getScoreColor(item.score || 0)}`}>
-                          {((item.score || 0) * 100).toFixed(0)}% match
-                        </span>
-                        <span className="text-xs text-white/40">
-                          {item.tweet.likes?.toLocaleString() || 0} likes
-                        </span>
+                  {creatorTweets.map((item, i) => (
+                    <div key={i} className="flex gap-4">
+                      <div className={`shrink-0 px-2 py-1 rounded text-xs font-medium bg-gradient-to-r ${getScoreStyle(item.score)}`}>
+                        {((item.score || 0) * 100).toFixed(0)}%
                       </div>
-                      <p className="text-white/70">{item.tweet.text}</p>
+                      <div>
+                        <p className="text-white/60 text-sm leading-relaxed">{item.tweet.text}</p>
+                        <p className="text-xs text-white/30 mt-1">{item.tweet.likes?.toLocaleString() || 0} likes</p>
+                      </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-white/50">No matching tweets found</p>
+                <p className="text-white/40">No matching tweets found</p>
               )}
             </div>
           )}
 
-          {/* Empty State */}
-          {!loading && !error && matches.length === 0 && (
-            <div className="bg-white/5 rounded-2xl p-12 border border-white/10 text-center">
-              <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Empty state */}
+          {!loading && !error && matches.length === 0 && !statusMessage && (
+            <div className="text-center py-20">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-white/[0.03] flex items-center justify-center">
+                <svg className="w-8 h-8 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-white mb-2">Find Your Match</h3>
-              <p className="text-white/50 max-w-md mx-auto mb-4">
-                Enter a brand or creator username to find profiles with similar content and voice.
+              <h3 className="text-lg font-medium text-white mb-2">Find your match</h3>
+              <p className="text-white/40 max-w-sm mx-auto mb-4">
+                Enter a username to discover profiles with similar content style
               </p>
-              <p className="text-sm text-white/30">
-                Try: Nike, WHOOP, Topicals (brands) or elonmusk, MKBHD, garyvee (creators)
+              <p className="text-sm text-white/20">
+                Try: Nike, WHOOP, Topicals, elonmusk, MKBHD
               </p>
             </div>
           )}
