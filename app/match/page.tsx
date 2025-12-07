@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Sidebar from '../components/Sidebar';
 
 interface ProfileMetadata {
@@ -31,8 +32,10 @@ interface TweetResult {
 }
 
 export default function MatchPage() {
-  const [username, setUsername] = useState('Nike');
+  const searchParams = useSearchParams();
+  const [username, setUsername] = useState('');
   const [searcherType, setSearcherType] = useState<'brand' | 'creator'>('brand');
+  const [initialized, setInitialized] = useState(false);
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [queryProfile, setQueryProfile] = useState<ProfileMetadata | null>(null);
   const [loading, setLoading] = useState(false);
@@ -50,7 +53,7 @@ export default function MatchPage() {
   // Expanded card state
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
-  const ingestProfile = async (user: string, type: string): Promise<boolean> => {
+  const ingestProfile = useCallback(async (user: string, type: string): Promise<boolean> => {
     setStatusMessage(`Ingesting @${user} from X (this may take a few seconds)...`);
 
     try {
@@ -72,11 +75,11 @@ export default function MatchPage() {
       setError(err instanceof Error ? err.message : 'Failed to ingest profile');
       return false;
     }
-  };
+  }, []);
 
-  const handleMatch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!username.trim()) return;
+  // Core match logic that can be called programmatically
+  const performMatch = useCallback(async (searchUsername: string, type: 'brand' | 'creator', minFollowersFilter?: string) => {
+    if (!searchUsername.trim()) return;
 
     setLoading(true);
     setError(null);
@@ -86,13 +89,13 @@ export default function MatchPage() {
 
     try {
       const params = new URLSearchParams({
-        username: username.trim(),
-        type: searcherType,
+        username: searchUsername.trim(),
+        type: type,
         top_k: '10',
       });
 
-      if (minFollowers) {
-        params.set('min_followers', minFollowers);
+      if (minFollowersFilter) {
+        params.set('min_followers', minFollowersFilter);
       }
 
       let response = await fetch(`/api/match?${params}`);
@@ -100,7 +103,7 @@ export default function MatchPage() {
 
       // If profile not found, try to ingest it
       if (response.status === 404 && data.error?.includes('not found')) {
-        const ingested = await ingestProfile(username.trim(), searcherType);
+        const ingested = await ingestProfile(searchUsername.trim(), type);
         if (!ingested) {
           setLoading(false);
           return;
@@ -126,7 +129,35 @@ export default function MatchPage() {
     } finally {
       setLoading(false);
     }
+  }, [ingestProfile]);
+
+  const handleMatch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await performMatch(username, searcherType, minFollowers);
   };
+
+  // Read URL params and auto-trigger search
+  useEffect(() => {
+    if (initialized) return;
+
+    const urlUsername = searchParams.get('username');
+    const urlType = searchParams.get('type') as 'brand' | 'creator' | null;
+
+    if (urlUsername) {
+      setUsername(urlUsername);
+      if (urlType === 'brand' || urlType === 'creator') {
+        setSearcherType(urlType);
+      }
+      setInitialized(true);
+      // Auto-trigger search after state is set
+      setTimeout(() => {
+        performMatch(urlUsername, urlType || 'brand');
+      }, 100);
+    } else {
+      setUsername('Nike'); // Default
+      setInitialized(true);
+    }
+  }, [searchParams, initialized, performMatch]);
 
   const handleDrillDown = async (creatorUsername: string) => {
     if (!queryProfile) return;
