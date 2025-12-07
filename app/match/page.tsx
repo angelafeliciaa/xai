@@ -49,6 +49,14 @@ function MatchContent() {
   const [loadingTweets, setLoadingTweets] = useState(false);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
+  // Grok AI features
+  const [explanations, setExplanations] = useState<Record<string, string>>({});
+  const [loadingExplanation, setLoadingExplanation] = useState<string | null>(null);
+  const [campaignBrief, setCampaignBrief] = useState<string | null>(null);
+  const [loadingBrief, setLoadingBrief] = useState(false);
+  const [showBriefModal, setShowBriefModal] = useState(false);
+  const [briefCreator, setBriefCreator] = useState<ProfileMetadata | null>(null);
+
   const ingestProfile = useCallback(async (user: string, type: string): Promise<boolean> => {
     setStatusMessage(`Ingesting @${user} from X...`);
     try {
@@ -74,6 +82,8 @@ function MatchContent() {
     setStatusMessage(null);
     setSelectedCreator(null);
     setCreatorTweets([]);
+    setExplanations({});
+    setCampaignBrief(null);
 
     try {
       const params = new URLSearchParams({
@@ -149,6 +159,65 @@ function MatchContent() {
       setCreatorTweets([]);
     } finally {
       setLoadingTweets(false);
+    }
+  };
+
+  const handleExplainMatch = async (e: React.MouseEvent, match: MatchResult) => {
+    e.stopPropagation();
+    if (!queryProfile) return;
+    if (explanations[match.profile.username]) return; // Already have explanation
+
+    setLoadingExplanation(match.profile.username);
+    try {
+      const response = await fetch('/api/grok', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'explain_match',
+          brand: queryProfile,
+          creator: match.profile,
+          matchScore: match.score,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to get explanation');
+      setExplanations(prev => ({ ...prev, [match.profile.username]: data.content }));
+    } catch (err) {
+      console.error('Explain match error:', err);
+      setExplanations(prev => ({ ...prev, [match.profile.username]: 'Failed to generate explanation. Please try again.' }));
+    } finally {
+      setLoadingExplanation(null);
+    }
+  };
+
+  const handleGenerateBrief = async (e: React.MouseEvent, creator: ProfileMetadata) => {
+    e.stopPropagation();
+    if (!queryProfile) return;
+
+    setBriefCreator(creator);
+    setShowBriefModal(true);
+    setLoadingBrief(true);
+    setCampaignBrief(null);
+
+    try {
+      const response = await fetch('/api/grok', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'campaign_brief',
+          brand: queryProfile,
+          creator: creator,
+          matchingTweets: creatorTweets.map(t => t.tweet),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to generate brief');
+      setCampaignBrief(data.content);
+    } catch (err) {
+      console.error('Campaign brief error:', err);
+      setCampaignBrief('Failed to generate campaign brief. Please try again.');
+    } finally {
+      setLoadingBrief(false);
     }
   };
 
@@ -346,6 +415,22 @@ function MatchContent() {
                         <span className="text-lg font-medium">{((match.score || 0) * 100).toFixed(0)}%</span>
                       </div>
 
+                      {/* Why button */}
+                      <button
+                        onClick={(e) => handleExplainMatch(e, match)}
+                        disabled={loadingExplanation === match.profile.username}
+                        className="px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-purple-500/5 border border-purple-500/20 text-purple-400 text-xs font-medium hover:from-purple-500/30 hover:to-purple-500/10 transition-all disabled:opacity-50 flex items-center gap-1.5"
+                      >
+                        {loadingExplanation === match.profile.username ? (
+                          <div className="w-3 h-3 border-2 border-purple-400/30 border-t-purple-400 rounded-full animate-spin"></div>
+                        ) : (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                        )}
+                        Why?
+                      </button>
+
                       {/* Arrow */}
                       {searcherType === 'brand' && (
                         <svg className="w-5 h-5 text-white/20 group-hover:text-white/40 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,9 +439,26 @@ function MatchContent() {
                       )}
                     </div>
 
-                    {/* Expandable tweets */}
-                    {match.profile.sample_tweets && match.profile.sample_tweets.length > 0 && (
+                    {/* AI Explanation */}
+                    {explanations[match.profile.username] && (
                       <div className="mt-4 pt-4 border-t border-white/[0.04]">
+                        <div className="flex items-start gap-2">
+                          <div className="shrink-0 w-5 h-5 rounded bg-gradient-to-br from-purple-500/30 to-purple-500/10 flex items-center justify-center mt-0.5">
+                            <svg className="w-3 h-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="text-[10px] uppercase tracking-wider text-purple-400/60 mb-1">Grok Analysis</div>
+                            <p className="text-sm text-white/60 leading-relaxed">{explanations[match.profile.username]}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Expandable tweets + Campaign brief button */}
+                    {match.profile.sample_tweets && match.profile.sample_tweets.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-white/[0.04] flex items-center justify-between">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -369,13 +471,26 @@ function MatchContent() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
                         </button>
-                        {expandedCard === match.profile.username && (
-                          <div className="mt-3 space-y-2">
-                            {match.profile.sample_tweets.slice(0, 2).map((tweet, i) => (
-                              <p key={i} className="text-xs text-white/30 bg-white/[0.02] px-3 py-2 rounded-lg line-clamp-2">{tweet}</p>
-                            ))}
-                          </div>
+
+                        {selectedCreator === match.profile.username && (
+                          <button
+                            onClick={(e) => handleGenerateBrief(e, match.profile)}
+                            className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium hover:from-blue-500/30 hover:to-cyan-500/20 transition-all flex items-center gap-1.5"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Generate Campaign Brief
+                          </button>
                         )}
+                      </div>
+                    )}
+
+                    {expandedCard === match.profile.username && match.profile.sample_tweets && (
+                      <div className="mt-3 space-y-2">
+                        {match.profile.sample_tweets.slice(0, 2).map((tweet, i) => (
+                          <p key={i} className="text-xs text-white/30 bg-white/[0.02] px-3 py-2 rounded-lg line-clamp-2">{tweet}</p>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -434,6 +549,63 @@ function MatchContent() {
           )}
         </div>
       </main>
+
+      {/* Campaign Brief Modal */}
+      {showBriefModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b border-white/[0.06] flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-medium text-white">Campaign Brief</h2>
+                <p className="text-sm text-white/40 mt-1">
+                  {queryProfile?.name} × {briefCreator?.name}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowBriefModal(false)}
+                className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+              >
+                <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(80vh-88px)]">
+              {loadingBrief ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+                  <p className="text-white/40">Generating campaign brief with Grok...</p>
+                </div>
+              ) : campaignBrief ? (
+                <div className="prose prose-invert prose-sm max-w-none">
+                  <div className="text-white/70 leading-relaxed whitespace-pre-wrap">{campaignBrief}</div>
+                </div>
+              ) : null}
+            </div>
+            {!loadingBrief && campaignBrief && (
+              <div className="p-4 border-t border-white/[0.06] flex justify-end gap-3">
+                <button
+                  onClick={() => setShowBriefModal(false)}
+                  className="px-4 py-2 rounded-lg bg-white/5 text-white/60 text-sm font-medium hover:bg-white/10 transition-colors"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(campaignBrief);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-white text-black text-sm font-medium hover:bg-white/90 transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                  </svg>
+                  Copy Brief
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
