@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const minFollowers = searchParams.get('min_followers');
     const verifiedOnly = searchParams.get('verified') === 'true';
 
-    const indexName = process.env.PINECONE_INDEX || 'ugc-creators';
+    const indexName = process.env.PINECONE_INDEX!;
     const index = pinecone.index(indexName);
 
     // Build filter for creators

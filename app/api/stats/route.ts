@@ -7,7 +7,7 @@ const pinecone = new Pinecone({
 
 export async function GET() {
   try {
-    const indexName = process.env.PINECONE_INDEX || 'ugc-creators';
+    const indexName = process.env.PINECONE_INDEX!;
     const index = pinecone.index(indexName);
 
     // Get stats from Pinecone

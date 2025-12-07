@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const queryEmbedding = embeddingResponse.data[0].embedding;
 
     // Query Pinecone
-    const indexName = process.env.PINECONE_INDEX || 'ugc-creators';
+    const indexName = process.env.PINECONE_INDEX!;
     const index = pinecone.index(indexName);
 
     const filter = minFollowers
