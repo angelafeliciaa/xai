@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import Sidebar from '../components/Sidebar';
 
 interface SearchResult {
@@ -73,29 +74,58 @@ export default function SearchPage() {
     <div className="flex min-h-screen bg-[#050505]">
       <Sidebar />
 
-      <main className="ml-64 flex-1 p-8 lg:p-12">
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#050505]/95 backdrop-blur-sm border-b border-white/[0.06]">
+        <div className="flex items-center justify-between p-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg overflow-hidden">
+              <img src="/images/logo-64.png" alt="xCreator" className="w-full h-full object-cover" />
+            </div>
+            <span className="text-white font-medium text-sm">xCreator</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/match" className="p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </Link>
+            <Link href="/creators" className="p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </Link>
+            <Link href="/search" className="p-2 rounded-lg bg-white/5">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <main className="md:ml-64 flex-1 p-4 sm:p-6 md:p-8 lg:p-12 pt-20 md:pt-8 lg:pt-12">
         <div className="max-w-3xl">
           {/* Header */}
-          <div className="mb-10">
-            <h1 className="text-3xl font-medium text-white mb-2 tracking-tight">Vector Search</h1>
-            <p className="text-white/40">Test semantic search against creator tweets</p>
+          <div className="mb-6 md:mb-10">
+            <h1 className="text-2xl sm:text-3xl font-medium text-white mb-2 tracking-tight">Vector Search</h1>
+            <p className="text-sm md:text-base text-white/40">Test semantic search against creator tweets</p>
           </div>
 
           {/* Search Form */}
-          <form onSubmit={handleSearch} className="mb-8">
+          <form onSubmit={handleSearch} className="mb-6 md:mb-8">
             <div className="mb-4">
               <label className="block text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">Query</label>
               <textarea
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="AI startup seeking tech thought leaders for product launch campaign"
-                className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all resize-none"
+                className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all resize-none text-sm md:text-base"
                 rows={3}
               />
             </div>
 
-            <div className="flex gap-3 items-end">
-              <div className="w-32">
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
+              <div className="w-full sm:w-32">
                 <label className="block text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">Results</label>
                 <select
                   value={topK}
@@ -108,7 +138,7 @@ export default function SearchPage() {
                   <option value="50">50</option>
                 </select>
               </div>
-              <div className="w-40">
+              <div className="w-full sm:w-40">
                 <label className="block text-xs font-medium text-white/40 mb-2 uppercase tracking-wider">Min Followers</label>
                 <input
                   type="number"
@@ -121,7 +151,7 @@ export default function SearchPage() {
               <button
                 type="submit"
                 disabled={loading || !query.trim()}
-                className="flex-1 px-6 py-2.5 bg-white text-black font-medium rounded-xl hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                className="w-full sm:flex-1 px-6 py-2.5 bg-white text-black font-medium rounded-xl hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>

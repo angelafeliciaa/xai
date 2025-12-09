@@ -32,28 +32,57 @@ export default function Home() {
     <div className="flex min-h-screen bg-[#050505]">
       <Sidebar />
 
-      <main className="ml-64 flex-1 p-8 lg:p-12">
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#050505]/95 backdrop-blur-sm border-b border-white/[0.06]">
+        <div className="flex items-center justify-between p-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg overflow-hidden">
+              <img src="/images/logo-64.png" alt="xCreator" className="w-full h-full object-cover" />
+            </div>
+            <span className="text-white font-medium text-sm">xCreator</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/match" className="p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </Link>
+            <Link href="/creators" className="p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </Link>
+            <Link href="/search" className="p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <main className="md:ml-64 flex-1 p-4 sm:p-6 md:p-8 lg:p-12 pt-20 md:pt-8 lg:pt-12">
         <div className="max-w-5xl">
           {/* Hero Section */}
-          <div className="mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/60 mb-6">
+          <div className="mb-12 md:mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/60 mb-4 md:mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
               {stats.profiles} profiles indexed
             </div>
-            <h1 className="text-5xl font-medium text-white mb-4 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium text-white mb-4 tracking-tight">
               Find creators that
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/90 to-white/50">
                 match your brand
               </span>
             </h1>
-            <p className="text-lg text-white/40 max-w-xl leading-relaxed">
+            <p className="text-base md:text-lg text-white/40 max-w-xl leading-relaxed">
               Semantic matching powered by embeddings. Discover creators whose content style aligns with your brand voice.
             </p>
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 md:mb-16">
             <Link
               href="/match"
               className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-white/[0.08] to-transparent p-[1px]"
@@ -125,9 +154,9 @@ export default function Home() {
           </div>
 
           {/* How it works */}
-          <div className="mb-16">
-            <h2 className="text-xs font-medium text-white/30 uppercase tracking-widest mb-8">How it works</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="mb-12 md:mb-16">
+            <h2 className="text-xs font-medium text-white/30 uppercase tracking-widest mb-6 md:mb-8">How it works</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               <div className="relative">
                 <div className="text-6xl font-light text-white/[0.03] absolute -top-4 -left-2">01</div>
                 <div className="relative">
@@ -159,7 +188,7 @@ export default function Home() {
           </div>
 
           {/* Stats row */}
-          <div className="flex items-center gap-12 py-8 border-t border-white/5">
+          <div className="flex flex-wrap items-center gap-8 md:gap-12 py-6 md:py-8 border-t border-white/5">
             <div>
               <div className="text-2xl font-medium text-white">{stats.profiles}</div>
               <div className="text-xs text-white/30">Profiles</div>

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import Sidebar from '../../components/Sidebar';
 import Match3DGallery from '../Match3DGallery';
 
@@ -76,7 +77,25 @@ function MatchSpaceContent() {
   return (
     <div className="flex min-h-screen bg-[#050505]">
       <Sidebar />
-      <main className="ml-64 flex-1 p-6 lg:p-10 flex flex-col gap-4">
+      
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#050505]/95 backdrop-blur-sm border-b border-white/[0.06]">
+        <div className="flex items-center justify-between p-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg overflow-hidden">
+              <img src="/images/logo-64.png" alt="xCreator" className="w-full h-full object-cover" />
+            </div>
+            <span className="text-white font-medium text-sm">xCreator</span>
+          </Link>
+          <Link href="/match" className="p-2 rounded-lg bg-white/5">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+      </div>
+
+      <main className="md:ml-64 flex-1 p-4 sm:p-6 lg:p-10 pt-20 md:pt-6 lg:pt-10 flex flex-col gap-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             {queryProfile?.profile_image_url && (
@@ -183,4 +202,5 @@ export default function MatchSpacePage() {
     </Suspense>
   );
 }
+
 

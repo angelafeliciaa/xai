@@ -40,7 +40,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="w-64 h-screen bg-[#050505] flex flex-col fixed left-0 top-0 border-r border-white/[0.06]">
+    <div className="hidden md:flex w-64 h-screen bg-[#050505] flex-col fixed left-0 top-0 border-r border-white/[0.06] z-40">
       {/* Logo */}
       <div className="p-6 pb-8">
         <Link href="/" className="flex items-center gap-3 group">

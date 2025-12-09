@@ -83,19 +83,48 @@ export default function CreatorsPage() {
     <div className="flex min-h-screen bg-[#050505]">
       <Sidebar />
 
-      <main className="ml-64 flex-1 p-8 lg:p-12">
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-[#050505]/95 backdrop-blur-sm border-b border-white/[0.06]">
+        <div className="flex items-center justify-between p-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg overflow-hidden">
+              <img src="/images/logo-64.png" alt="xCreator" className="w-full h-full object-cover" />
+            </div>
+            <span className="text-white font-medium text-sm">xCreator</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/match" className="p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </Link>
+            <Link href="/creators" className="p-2 rounded-lg bg-white/5">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </Link>
+            <Link href="/search" className="p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <svg className="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <main className="md:ml-64 flex-1 p-4 sm:p-6 md:p-8 lg:p-12 pt-20 md:pt-8 lg:pt-12">
         <div className="max-w-7xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-medium text-white mb-2 tracking-tight">Creators</h1>
-            <p className="text-white/40">Browse and discover creator profiles in the database</p>
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-medium text-white mb-2 tracking-tight">Creators</h1>
+            <p className="text-sm md:text-base text-white/40">Browse and discover creator profiles in the database</p>
           </div>
 
           {/* Search & Filters Bar */}
-          <div className="mb-8 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-            <div className="flex flex-wrap items-center gap-4">
+          <div className="mb-6 md:mb-8 p-3 md:p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 md:gap-4">
               {/* Search */}
-              <div className="flex-1 min-w-[200px]">
+              <div className="w-full sm:flex-1 sm:min-w-[200px]">
                 <div className="relative">
                   <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -111,15 +140,15 @@ export default function CreatorsPage() {
               </div>
 
               {/* Divider */}
-              <div className="hidden md:block w-px h-8 bg-white/[0.08]" />
+              <div className="hidden lg:block w-px h-8 bg-white/[0.08]" />
 
               {/* Min Followers */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-white/40 uppercase tracking-wider">Followers</span>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <span className="text-xs text-white/40 uppercase tracking-wider shrink-0">Followers</span>
                 <select
                   value={minFollowers}
                   onChange={(e) => setMinFollowers(e.target.value)}
-                  className="px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer pr-8"
+                  className="flex-1 sm:flex-initial px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer pr-8"
                   style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.4)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
                 >
                   <option value="">Any</option>
@@ -134,7 +163,7 @@ export default function CreatorsPage() {
               {/* Verified Toggle */}
               <button
                 onClick={() => setVerifiedOnly(!verifiedOnly)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
+                className={`w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
                   verifiedOnly
                     ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                     : 'bg-white/[0.03] text-white/50 border border-white/[0.08] hover:border-white/[0.15] hover:text-white/70'
@@ -147,12 +176,12 @@ export default function CreatorsPage() {
               </button>
 
               {/* Sort */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-white/40 uppercase tracking-wider">Sort</span>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <span className="text-xs text-white/40 uppercase tracking-wider shrink-0">Sort</span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'followers' | 'name')}
-                  className="px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer pr-8"
+                  className="flex-1 sm:flex-initial px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-lg text-white text-sm focus:outline-none focus:border-white/20 transition-all appearance-none cursor-pointer pr-8"
                   style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.4)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', backgroundSize: '16px' }}
                 >
                   <option value="followers">Most followers</option>
@@ -164,7 +193,7 @@ export default function CreatorsPage() {
               <button
                 onClick={handleFilter}
                 disabled={loading}
-                className="px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-white/90 disabled:opacity-40 transition-all text-sm"
+                className="w-full sm:w-auto px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-white/90 disabled:opacity-40 transition-all text-sm"
               >
                 {loading ? 'Loading...' : 'Apply'}
               </button>
